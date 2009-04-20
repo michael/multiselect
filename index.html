@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>jQuery UI Multiselect</title>
+  <link type="text/css" href="css/smoothness/jquery-ui-1.7.1.custom.css" rel="stylesheet" />
+  <link type="text/css" href="css/page.css" rel="stylesheet" />	
+  <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+  <script type="text/javascript" src="js/jquery-ui-1.7.1.custom.min.js"></script>
+  <script type="text/javascript" src="js/ui.multiselect.js"></script>
+  <script type="text/javascript">
+  $(function(){
+    // Multiselect
+    $(".multiselect").multiselect({sortable: true});
+  });
+  </script>
+</head>
+<body>
+  <h1>jQuery UI Multiselect</h1>
+  <p>
+    is my attempt of a <em>sortable</em> multiple select widget. It depends on <a href="http://jquery.com/">jQuery 1.3</a> and <a href="http://jqueryui.com/">jQuery UI 1.7</a>.
+    The widget is styleable using <a href="http://jqueryui.com/themeroller/" title="jQuery UI Themeroller">Themeroller</a>.
+    It works in an <em>unobtrusive</em> fashion, by just turning html multiple select inputs into a sexier equivalent. There's no extra markup needed.
+  </p><p>
+    The source code is available at <a href="http://github.com/michael/multiselect/" title="Social Coding">Github</a>.
+  </p>
+  
+  <h1>Demo</h1>
+  
+  <h2>Choose your weapons</h2>
+  <select id="weapons" class="multiselect" multiple="multiple" name="weapons[]">
+    <option value="boomerang">Boomerang</option>
+    <option value="medieval_knive">Medieval Knive</option>
+    <option selected="selected" value="ninja_star">Ninja Star</option>
+    <option value="dragon_blades">Dragon Blades</option>
+    <option selected="selected" value="warrior_sword">Warrior Sword</option>
+    <option value="machine_gun">Machine Gun</option>
+    <option selected="selected" value="tomato">Tomato</option>
+    <option value="axe">Axe</option>
+    <option value="jedi_sword">Jedi Sword</option>
+  </select>
+
+
+  <h1>Installation</h1>
+  <div id="installation">
+    <p>
+    ...is a cakewalk.
+    </p><p>
+    Add the library references.
+    </p>
+    <script src="http://gist.github.com/98231.js" type="javascript"></script>
+    <p>
+    Define your selectbox having the <em>multiple</em> attribute set.
+    </p>
+    <script src="http://gist.github.com/98232.js" type="javascript"></script>
+    <p>
+      Invoke the Multiselect Spirits.
+    </p>
+    <script src="http://gist.github.com/98234.js" type="javascript"></script>
+  </div>
+  <h1>Credits</h1>
+  <p>My name is <em>Michael Aufreiter</em>. Neither I have a website nor I have my own blog yet.
+  Fortunately, I'm a member of <a href="http://www.quasipartikel.at">Quasipartikel</a>, a small
+  office for data throwing affairs. We're based in Linz / Upper Austria and our website should be online pretty soon. 
+  So all fame should go there.
+  </p>
+  <h1>Misc</h1>
+  <p>
+  There are no limitations - Do whatever you want with this plugin.
+  If you did some nice modifications, just let me know (via Github). I'd be happy to include them.
+  </p>
+</body>
+</html>
+
+

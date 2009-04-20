@@ -1,0 +1,189 @@
+html { 
+  font-family: Trebuchet MS;
+	color: #444;
+  padding: 20px 50px;
+}
+body {
+  width: 800px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 32px;
+}
+h2 {
+	font-size: 18px;
+	font-weight: bold;
+}
+h1, h2 {
+
+  position: relative;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.6;
+  width:600px;
+}
+
+p em, p a {
+  font-style: italic;
+}
+
+a {
+	color: #444;
+	text-decoration: underline;
+}
+
+p a:hover {
+  color: white;
+  background: #444;
+}
+
+p em {
+  padding: 0 3px 0 3px !important;
+  text-decoration: none;
+}
+
+em {
+	background: #444;
+	color: white;
+	padding-right: 1px;
+}
+
+.multiselect {
+	width: 500px;
+	height: 150px;
+}
+
+
+/* gist modified */
+#installation .gist {
+	width: 600px;
+  color: #000;
+}
+
+  #installation .gist div {
+    padding: 0;
+    margin: 0;
+  }
+
+  #installation .gist .gist-file {
+    border: 1px solid #dedede; /* gray */
+		padding: 5px;
+		/*border: none;*/
+		
+    font-family: Monaco, "Courier New", monospace;
+    margin-bottom: 1em;
+  }
+
+    #installation .gist .gist-file .gist-meta {
+      overflow: hidden;
+      font-size: 12px;
+      padding: .5em;
+      color: #666;
+      background-color: #eaeaea;
+			display: none;
+    }
+
+      #installation .gist .gist-file .gist-meta a {
+        color: #369;
+      }
+
+      #installation .gist .gist-file .gist-meta a:visited {
+        color: #737;
+      }
+
+    #installation .gist .gist-file .gist-data {
+      overflow: auto;
+      /*border-bottom: 1px solid #ddd;*/
+			border: none;
+      font-size: 12px;
+    }
+
+      #installation .gist .gist-file .gist-data pre {
+        /*font-family: 'Bitstream Vera Sans Mono', 'Courier', monospace;*/
+				font-family: 'Consolas', monospace, 'Courier New', 'Courier', 'Bitstream Vera Sans Mono', 'Courier', monospace;
+        background: transparent !important;
+        margin: 0 !important;
+        border: none !important;
+        padding: .25em .5em .5em .5em !important;
+      }
+
+        #installation .gist .gist-file .gist-data .gist-highlight {
+          background: transparent !important;
+        }
+
+        #installation .gist .gist-file .gist-data .gist-line-numbers {
+          background-color: #ececec;
+          color: #aaa;
+
+					border: none;
+          text-align: right;
+        }
+
+          #installation .gist .gist-file .gist-data .gist-line-numbers span {
+            clear: right;
+            display: block;
+          }
+
+#installation .gist-syntax  { background: #ffffff; }
+#installation .gist-syntax .c { color: #999988; font-style: italic } /* Comment */
+#installation .gist-syntax .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+#installation .gist-syntax .k { color: #000000; font-weight: bold } /* Keyword */
+#installation .gist-syntax .o { color: #000000; font-weight: bold } /* Operator */
+#installation .gist-syntax .cm { color: #999988; font-style: italic } /* Comment.Multiline */
+#installation .gist-syntax .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
+#installation .gist-syntax .c1 { color: #999988; font-style: italic } /* Comment.Single */
+#installation .gist-syntax .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
+#installation .gist-syntax .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
+#installation .gist-syntax .gd .x { color: #000000; background-color: #ffaaaa } /* Generic.Deleted.Specific */
+#installation .gist-syntax .ge { color: #000000; font-style: italic } /* Generic.Emph */
+#installation .gist-syntax .gr { color: #aa0000 } /* Generic.Error */
+#installation .gist-syntax .gh { color: #999999 } /* Generic.Heading */
+#installation .gist-syntax .gi { color: #000000; background-color: #ddffdd } /* Generic.Inserted */
+#installation .gist-syntax .gi .x { color: #000000; background-color: #aaffaa } /* Generic.Inserted.Specific */
+#installation .gist-syntax .go { color: #888888 } /* Generic.Output */
+#installation .gist-syntax .gp { color: #555555 } /* Generic.Prompt */
+#installation .gist-syntax .gs { font-weight: bold } /* Generic.Strong */
+#installation .gist-syntax .gu { color: #aaaaaa } /* Generic.Subheading */
+#installation .gist-syntax .gt { color: #aa0000 } /* Generic.Traceback */
+#installation .gist-syntax .kc { color: #000000; font-weight: bold } /* Keyword.Constant */
+#installation .gist-syntax .kd { color: #000000; font-weight: bold } /* Keyword.Declaration */
+#installation .gist-syntax .kp { color: #000000; font-weight: bold } /* Keyword.Pseudo */
+#installation .gist-syntax .kr { color: #000000; font-weight: bold } /* Keyword.Reserved */
+#installation .gist-syntax .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+#installation .gist-syntax .m { color: #009999 } /* Literal.Number */
+#installation .gist-syntax .s { color: #d14 } /* Literal.String */
+#installation .gist-syntax .na { color: #008080 } /* Name.Attribute */
+#installation .gist-syntax .nb { color: #0086B3 } /* Name.Builtin */
+#installation .gist-syntax .nc { color: #445588; font-weight: bold } /* Name.Class */
+#installation .gist-syntax .no { color: #008080 } /* Name.Constant */
+#installation .gist-syntax .ni { color: #800080 } /* Name.Entity */
+#installation .gist-syntax .ne { color: #990000; font-weight: bold } /* Name.Exception */
+#installation .gist-syntax .nf { color: #990000; font-weight: bold } /* Name.Function */
+#installation .gist-syntax .nn { color: #555555 } /* Name.Namespace */
+#installation .gist-syntax .nt { color: #000080 } /* Name.Tag */
+#installation .gist-syntax .nv { color: #008080 } /* Name.Variable */
+#installation .gist-syntax .ow { color: #000000; font-weight: bold } /* Operator.Word */
+#installation .gist-syntax .w { color: #bbbbbb } /* Text.Whitespace */
+#installation .gist-syntax .mf { color: #009999 } /* Literal.Number.Float */
+#installation .gist-syntax .mh { color: #009999 } /* Literal.Number.Hex */
+#installation .gist-syntax .mi { color: #009999 } /* Literal.Number.Integer */
+#installation .gist-syntax .mo { color: #009999 } /* Literal.Number.Oct */
+#installation .gist-syntax .sb { color: #d14 } /* Literal.String.Backtick */
+#installation .gist-syntax .sc { color: #d14 } /* Literal.String.Char */
+#installation .gist-syntax .sd { color: #d14 } /* Literal.String.Doc */
+#installation .gist-syntax .s2 { color: #d14 } /* Literal.String.Double */
+#installation .gist-syntax .se { color: #d14 } /* Literal.String.Escape */
+#installation .gist-syntax .sh { color: #d14 } /* Literal.String.Heredoc */
+#installation .gist-syntax .si { color: #d14 } /* Literal.String.Interpol */
+#installation .gist-syntax .sx { color: #d14 } /* Literal.String.Other */
+#installation .gist-syntax .sr { color: #009926 } /* Literal.String.Regex */
+#installation .gist-syntax .s1 { color: #d14 } /* Literal.String.Single */
+#installation .gist-syntax .ss { color: #990073 } /* Literal.String.Symbol */
+#installation .gist-syntax .bp { color: #999999 } /* Name.Builtin.Pseudo */
+#installation .gist-syntax .vc { color: #008080 } /* Name.Variable.Class */
+#installation .gist-syntax .vg { color: #008080 } /* Name.Variable.Global */
+#installation .gist-syntax .vi { color: #008080 } /* Name.Variable.Instance */
+#installation .gist-syntax .il { color: #009999 } /* Literal.Number.Integer.Long */
