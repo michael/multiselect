@@ -3,17 +3,20 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>jQuery UI Multiselect</title>
-  <link type="text/css" href="css/smoothness/jquery-ui-1.7.1.custom.css" rel="stylesheet" />
+  <link type="text/css" rel="stylesheet" href="http://jqueryui.com/themes/base/ui.all.css" />
+  <link type="text/css" href="css/ui.multiselect.css" rel="stylesheet" />
+  
   <link type="text/css" href="css/page.css" rel="stylesheet" />	
   <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
   <script type="text/javascript" src="js/jquery-ui-1.7.1.custom.min.js"></script>
   <script type="text/javascript" src="js/ui.multiselect.js"></script>
   <script type="text/javascript">
-  $(function(){
-    // Multiselect
-    $(".multiselect").multiselect({sortable: true});
-  });
+    $(function(){
+      $(".multiselect").multiselect({sortable: true});
+      $('#switcher').themeswitcher();
+    });
   </script>
+  
 </head>
 <body>
   <h1>jQuery UI Multiselect</h1>
@@ -27,19 +30,119 @@
   
   <h1>Demo</h1>
   
-  <h2>Choose your weapons</h2>
-  <select id="weapons" class="multiselect" multiple="multiple" name="weapons[]">
-    <option value="boomerang">Boomerang</option>
-    <option value="medieval_knive">Medieval Knive</option>
-    <option selected="selected" value="ninja_star">Ninja Star</option>
-    <option value="dragon_blades">Dragon Blades</option>
-    <option selected="selected" value="warrior_sword">Warrior Sword</option>
-    <option value="machine_gun">Machine Gun</option>
-    <option selected="selected" value="tomato">Tomato</option>
-    <option value="axe">Axe</option>
-    <option value="jedi_sword">Jedi Sword</option>
-  </select>
+  <script type="text/javascript"
+    src="http://jqueryui.com/themeroller/themeswitchertool/">
+  </script>
+  <div id="switcher"></div>
+  
+  <h2>Choose countries</h2>
+  <form action="index.html">
+    <select id="countries" class="multiselect" multiple="multiple" name="countries[]">
+      <option value="AFG">Afghanistan</option>
+      <option value="ALB">Albania</option>
+      <option value="DZA">Algeria</option>
+      <option value="AND">Andorra</option>
+      <option value="ARG">Argentina</option>
+      <option value="ARM">Armenia</option>
+      <option value="ABW">Aruba</option>
+      <option value="AUS">Australia</option>
+      <option value="AUT" selected="selected">Austria</option>
 
+      <option value="AZE">Azerbaijan</option>
+      <option value="BGD">Bangladesh</option>
+      <option value="BLR">Belarus</option>
+      <option value="BEL">Belgium</option>
+      <option value="BIH">Bosnia and Herzegovina</option>
+      <option value="BRA">Brazil</option>
+      <option value="BRN">Brunei</option>
+      <option value="BGR">Bulgaria</option>
+      <option value="CAN">Canada</option>
+
+      <option value="CHN">China</option>
+      <option value="COL">Colombia</option>
+      <option value="HRV">Croatia</option>
+      <option value="CYP">Cyprus</option>
+      <option value="CZE">Czech Republic</option>
+      <option value="DNK">Denmark</option>
+      <option value="EGY">Egypt</option>
+      <option value="EST">Estonia</option>
+      <option value="FIN">Finland</option>
+
+      <option value="FRA">France</option>
+      <option value="GEO">Georgia</option>
+      <option value="DEU" selected="selected">Germany</option>
+      <option value="GRC">Greece</option>
+      <option value="HKG">Hong Kong</option>
+      <option value="HUN">Hungary</option>
+      <option value="ISL">Iceland</option>
+      <option value="IND">India</option>
+      <option value="IDN">Indonesia</option>
+
+      <option value="IRN">Iran</option>
+      <option value="IRL">Ireland</option>
+      <option value="ISR">Israel</option>
+      <option value="ITA">Italy</option>
+      <option value="JPN">Japan</option>
+      <option value="JOR">Jordan</option>
+      <option value="KAZ">Kazakhstan</option>
+      <option value="KWT">Kuwait</option>
+      <option value="KGZ">Kyrgyzstan</option>
+
+      <option value="LVA">Latvia</option>
+      <option value="LBN">Lebanon</option>
+      <option value="LIE">Liechtenstein</option>
+      <option value="LTU">Lithuania</option>
+      <option value="LUX">Luxembourg</option>
+      <option value="MAC">Macau</option>
+      <option value="MKD">Macedonia</option>
+      <option value="MYS">Malaysia</option>
+      <option value="MLT">Malta</option>
+
+      <option value="MEX">Mexico</option>
+      <option value="MDA">Moldova</option>
+      <option value="MNG">Mongolia</option>
+      <option value="NLD" selected="selected">Netherlands</option>
+      <option value="NZL">New Zealand</option>
+      <option value="NGA">Nigeria</option>
+      <option value="NOR">Norway</option>
+      <option value="PER">Peru</option>
+      <option value="PHL">Philippines</option>
+
+      <option value="POL">Poland</option>
+      <option value="PRT">Portugal</option>
+      <option value="QAT">Qatar</option>
+      <option value="ROU">Romania</option>
+      <option value="RUS">Russia</option>
+      <option value="SMR">San Marino</option>
+      <option value="SAU">Saudi Arabia</option>
+      <option value="CSG">Serbia and Montenegro</option>
+      <option value="SGP">Singapore</option>
+
+      <option value="SVK">Slovakia</option>
+      <option value="SVN">Slovenia</option>
+      <option value="ZAF">South Africa</option>
+      <option value="KOR">South Korea</option>
+      <option value="ESP">Spain</option>
+      <option value="LKA">Sri Lanka</option>
+      <option value="SWE">Sweden</option>
+      <option value="CHE">Switzerland</option>
+      <option value="SYR">Syria</option>
+
+      <option value="TWN">Taiwan</option>
+      <option value="TJK">Tajikistan</option>
+      <option value="THA">Thailand</option>
+      <option value="TUR">Turkey</option>
+      <option value="TKM">Turkmenistan</option>
+      <option value="UKR">Ukraine</option>
+      <option value="ARE">United Arab Emirates</option>
+      <option value="GBR">United Kingdom</option>
+      <option value="USA" selected="selected">United States</option>
+
+      <option value="UZB">Uzbekistan</option>
+      <option value="VAT">Vatican City</option>
+      <option value="VNM">Vietnam</option>
+    </select>
+  </form>
 
   <h1>Installation</h1>
   <div id="installation">
