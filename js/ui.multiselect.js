@@ -33,7 +33,7 @@ String.prototype.contains = function(string, separator) {
 $.widget("ui.multiselect", {
   _init: function() {
 		// hide this.element
-		this.element.hide();
+		// this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.count = 0; // number of currently selected options
@@ -62,10 +62,6 @@ $.widget("ui.multiselect", {
 		// init lists
 		this._populateLists(this.element.find('option'));
 		
-		// register events
-		this._registerAddEvents(this.availableList.find('a.action'));
-		this._registerRemoveEvents(this.selectedList.find('a.action'));
-		
 		// make selection sortable
 		if (this.options.sortable) {
 			$(this.selectedList).sortable({
@@ -89,19 +85,14 @@ $.widget("ui.multiselect", {
 					return false;
 				});
 		}
-		// remove-all
+		
+		// batch actions
 		$(".remove-all").click(function() {
-			that.selectedList.find('li').each(function() { that._setSelected($(this), false);	});
-			that.count = 0;
-			that._updateCount();
+			that._populateLists(that.element.find('option').removeAttr('selected'));
 			return false;
 		});
-		
-		// add-all
 		$(".add-all").click(function() {
-			that.availableList.find('li').each(function() { that._setSelected($(this), true); });
-			that.count = that.element.find('option').size();
-			that._updateCount();
+			that._populateLists(that.element.find('option').attr('selected', 'selected'));
 			return false;
 		});
   },
@@ -114,7 +105,6 @@ $.widget("ui.multiselect", {
   _populateLists: function(options) {
     this.selectedList.empty();
     this.availableList.empty();
-		this.selectedList.children('*').each(function() { this.itemLink = null; }); // cleanup
     
     var that = this;
     var items = $(options.map(function(i) {
@@ -124,7 +114,10 @@ $.widget("ui.multiselect", {
 			item[0].idx = i;
 			return item[0];
     }));
-		
+
+		// register events
+		this._registerAddEvents(this.availableList.find('a.action'));
+		this._registerRemoveEvents(this.selectedList.find('a.action'));
 		this._registerHoverEvents(this.container.find('li'));
 		
 		// update count
@@ -158,7 +151,6 @@ $.widget("ui.multiselect", {
 			this._applyItemState(selectedItem);
 			this._registerHoverEvents(selectedItem);
 			this._registerRemoveEvents(selectedItem.find('a.action'));
-
 		} else {
 			
 			// look for successor based on initial option index
@@ -185,15 +177,13 @@ $.widget("ui.multiselect", {
 	},
 	_applyItemState: function(item) {
 		if (item[0].optionLink.selected) {
-			// item.removeClass('ui-priority-secondary');
 			if (this.options.sortable)
-				item.find('span:first').addClass('ui-icon-arrowthick-2-n-s').removeClass('ui-helper-hidden').addClass('ui-icon');
+				item.children('span').addClass('ui-icon-arrowthick-2-n-s').removeClass('ui-helper-hidden').addClass('ui-icon');
 			else
-				item.find('span:first').removeClass('ui-icon-arrowthick-2-n-s').addClass('ui-helper-hidden').removeClass('ui-icon');
+				item.children('span').removeClass('ui-icon-arrowthick-2-n-s').addClass('ui-helper-hidden').removeClass('ui-icon');
 			item.find('a.action span').addClass('ui-icon-minus').removeClass('ui-icon-plus');
 		} else {
-			// item.addClass('ui-priority-secondary');
-			item.find('span:first').removeClass('ui-icon-arrowthick-2-n-s').addClass('ui-helper-hidden').removeClass('ui-icon');
+			item.children('span').removeClass('ui-icon-arrowthick-2-n-s').addClass('ui-helper-hidden').removeClass('ui-icon');
 			item.find('a.action span').addClass('ui-icon-plus').removeClass('ui-icon-minus');
 		}
 	},
