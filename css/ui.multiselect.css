@@ -19,11 +19,11 @@
 
 .ui-multiselect .add-all { float: right; padding: 7px;}
 .ui-multiselect .remove-all { float: right; padding: 7px;}
-.ui-multiselect .search-form { float: left; padding: 4px;}
+.ui-multiselect .search { float: left; padding: 4px;}
 .ui-multiselect .count { float: left; padding: 7px;}
 
 .ui-multiselect ul li span.ui-icon-arrowthick-2-n-s { position: absolute; left: 2px; }
 .ui-multiselect ul li a.action { position: absolute; right: 2px; top: 2px; }
 
-.ui-multiselect input.search { height: 14px; padding: 1px; opacity: 0.5; margin: 0; width: 100px; }
+.ui-multiselect input.search { height: 14px; padding: 1px; opacity: 0.5; margin: 5px; width: 100px; }
 .ui-multiselect input.waiting { color: #aaa; font-style: italic; }

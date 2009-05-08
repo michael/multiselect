@@ -39,7 +39,7 @@ $.widget("ui.multiselect", {
 		this.selectedContainer = $('<div class="selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
 		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 items selected</span><a href="#" class="remove-all">Remove All</a></div>').appendTo(this.selectedContainer);
-		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><form method="get" class="search-form"><input type="text" class="search ui-widget-content ui-corner-all"/></form><a href="#" class="add-all">Add All</a></div>').appendTo(this.availableContainer);
+		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search ui-widget-content ui-corner-all"/><a href="#" class="add-all">Add All</a></div>').appendTo(this.availableContainer);
 		this.selectedList = $('<ul class="selected"></ul>').bind('selectstart', function(){return false;}).appendTo(this.selectedContainer);
 		this.availableList = $('<ul class="available"></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
 		
