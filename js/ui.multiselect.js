@@ -22,7 +22,6 @@
  */
 
 
-
 /* String.contains - taken from Mootools */
 String.prototype.contains = function(string, separator) {
 	return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
@@ -83,6 +82,9 @@ $.widget("ui.multiselect", {
 				.parents('form').submit(function(){
 					return false;
 				});
+		} else {
+			// hide search
+			$('.search').hide();
 		}
 		
 		// batch actions
