@@ -2,7 +2,7 @@
  * jQuery UI Multiselect
  *
  * Authors:
- * 	Michael Aufreiter (quasipartikel.at)
+ *  Michael Aufreiter (quasipartikel.at)
  *  Yanick Rochon (yanick.rochon[at]gmail[dot]com)
  * 
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -139,8 +139,9 @@ $.widget("ui.multiselect", {
 		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsSelected);
 	},
 	_getOptionNode: function(option) {
-		var node = $('<li class="ui-state-default ui-element"><span class="ui-icon"/>'+$(option).text()+'<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
-		node.data('optionLink', $(option));
+		option = $(option);
+		var node = $('<li class="ui-state-default ui-element" title="'+option.text()+'"><span class="ui-icon"/>'+option.text()+'<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
+		node.data('optionLink', option);
 		return node;
 	},
 	// clones an item with 
@@ -165,14 +166,21 @@ $.widget("ui.multiselect", {
 		} else {
 			
 			// look for successor based on initial option index
-			var items = this.availableList.find('li');
-			var succ = null; var i = 0;
-			while (i<items.length) {
-				if ((i==0 && $(items[i]).data('idx') > item.data('idx')) || (($(items[i]).data('idx') > item.data('idx')) && ($(items[i-1]).data('idx') < item.data('idx')))) {
-					succ = items[i];
-					break;
+			var items = this.availableList.find('li'), comparator = this.options.nodeComparator;
+			var succ = null, i = item.data('idx'), direction = comparator(item, $(items[i]));
+
+			// TODO: test needed for dynamic list populating
+			if ( direction ) {
+				while (i>=0 && i<items.length) {
+					direction > 0 ? i++ : i--;
+					if ( direction != comparator(item, $(items[i])) ) {
+						// going up, go back one item down, otherwise leave as is
+						succ = items[direction > 0 ? i : i+1];
+						break;
+					}
 				}
-				i++;
+			} else {
+				succ = items[i];
 			}
 			
 			// clone the item
@@ -299,12 +307,18 @@ $.extend($.ui.multiselect, {
 		},
 		animated: 'fast',
 		show: 'slideDown',
-		hide: 'slideUp'
+		hide: 'slideUp',
+		nodeComparator: function(node1,node2) {
+			var text1 = node1.text(),
+			    text2 = node2.text();
+			return text1 == text2 ? 0 : (text1 < text2 ? -1 : 1);
+		},
+		nodeInserted: function(event,ui,data) {}
 	},
 	locale: {
 		addAll:'Add all',
 		removeAll:'Remove all',
-		itemsSelected:'items selected'
+		itemsCount:'items selected'
 	}
 });
 
