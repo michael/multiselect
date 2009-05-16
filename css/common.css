@@ -1,4 +1,4 @@
-@media screen, projection {
+
 	/*
 	Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 	Code licensed under the BSD License:
@@ -15,7 +15,7 @@
 	a												{color:#636363;}
 	a:hover									{text-decoration:none;}
 	strong									{font-weight:bold;}
-	em											{font-style:italics;}
+	em											{font-style: italic;}
 	h1,h2,h3,h4,h5,h6				{font-weight:bold;}
 	h1											{font-size:197%; margin:30px 0; color: #4f6f6c;}
 	h2											{font-size:174%; margin:20px 0; color:#4f6f6c;}
