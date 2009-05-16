@@ -14,6 +14,9 @@
  * Depends:
  *	ui.core.js
  *	ui.sortable.js
+ *
+ * Optional:
+ * localization (http://plugins.jquery.com/project/localisation)
  * 
  * Todo:
  *  use Element storage to avoid circular references
@@ -21,24 +24,25 @@
  *  Make batch actions faster
  */
 
-
-/* String.contains - taken from Mootools */
-String.prototype.contains = function(string, separator) {
-	return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
-};
+if ( !String.prototype.contains ) {
+	/* String.contains - taken from Mootools (default) */
+	String.prototype.contains = function(string, separator) {
+		return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
+	};
+}
 
 (function($) {
 
 $.widget("ui.multiselect", {
-  _init: function() {
+	_init: function() {
 		this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.count = 0; // number of currently selected options
 		this.selectedContainer = $('<div class="selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
-		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 items selected</span><a href="#" class="remove-all">Remove All</a></div>').appendTo(this.selectedContainer);
-		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search ui-widget-content ui-corner-all"/><a href="#" class="add-all">Add All</a></div>').appendTo(this.availableContainer);
+		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 items selected</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
+		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search empty ui-widget-content ui-corner-all"/><a href="#" class="add-all">'+$.ui.multiselect.locale.addAll+'</a></div>').appendTo(this.availableContainer);
 		this.selectedList = $('<ul class="selected"></ul>').bind('selectstart', function(){return false;}).appendTo(this.selectedContainer);
 		this.availableList = $('<ul class="available"></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
 		
@@ -63,25 +67,19 @@ $.widget("ui.multiselect", {
 		// make selection sortable
 		if (this.options.sortable) {
 			$(this.selectedList).sortable({
-			  containment: 'parent',
-			  update: function(event, ui) {
-			    // apply the new sort order to the original selectbox
-			    that.selectedList.find('li').each(function() {
-			      if (this.optionLink) $(this.optionLink).remove().appendTo(that.element);
-			    });
-			  }
+				containment: 'parent',
+				update: function(event, ui) {
+					// apply the new sort order to the original selectbox
+					that.selectedList.find('li').each(function() {
+						if (this.optionLink) $(this.optionLink).remove().appendTo(that.element);
+					});
+				}
 			});
 		}
 		
 		// set up livesearch
 		if (this.options.searchable) {
-			this.availableContainer.find('input.search')
-				.keyup(function() {
-					that._filter.apply(this, [that.availableList]);
-				}).keyup()
-				.parents('form').submit(function(){
-					return false;
-				});
+			this._registerSearchEvents(this.availableContainer.find('input.search'));
 		} else {
 			// hide search
 			$('.search').hide();
@@ -96,14 +94,14 @@ $.widget("ui.multiselect", {
 			that._populateLists(that.element.find('option').attr('selected', 'selected'));
 			return false;
 		});
-  },
+	},
 	destroy: function() {
 		this.element.show();
 		this.container.remove();
 
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
-  _populateLists: function(options) {
+	_populateLists: function(options) {
     this.selectedList.empty();
     this.availableList.empty();
     
@@ -114,7 +112,7 @@ $.widget("ui.multiselect", {
 			that._applyItemState(item);
 			item[0].idx = i;
 			return item[0];
-    }));
+		}));
 
 		// register events
 		this._registerAddEvents(this.availableList.find('a.action'));
@@ -125,14 +123,10 @@ $.widget("ui.multiselect", {
 		this._updateCount();
   },
 	_updateCount: function() {
-		this.selectedContainer.find('span.count').text(this.count+" items selected");
+		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsSelected);
 	},
 	_getOptionNode: function(option) {
-		var node = $('<li class="ui-state-default"> \
-			<span class="ui-icon"/> \
-			'+$(option).text()+'\
-			<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a> \
-			</li>').hide();
+		var node = $('<li class="ui-state-default"><span class="ui-icon"/>'+$(option).text()+'<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
 		node[0].optionLink = option;
 		return node;
 	},
@@ -190,12 +184,14 @@ $.widget("ui.multiselect", {
 	},
 	// taken from John Resig's liveUpdate script
 	_filter: function(list) {
+		var input = $(this);
 		var rows = list.children('li'),
 			cache = rows.map(function(){
 				return this.innerHTML.toLowerCase();
 			});
 		
-		var term = $.trim( $(this).val().toLowerCase() ), scores = [];
+		var term = $.trim( input.val().toLowerCase() ), scores = [];
+		
 
 		if ( !term ) {
 			rows.show();
@@ -221,33 +217,61 @@ $.widget("ui.multiselect", {
 		});
 	},
 	_registerAddEvents: function(elements) {
-    var that = this;
-    elements.click(function() {
+		var that = this;
+		elements.click(function() {
 			var item = that._setSelected($(this).parent(), true);
 			that.count += 1;
 			that._updateCount();
 			return false;
-    });
-  },
-  _registerRemoveEvents: function(elements) {
-    var that = this;
-    elements.click(function() {
+		});
+	},
+ 	_registerRemoveEvents: function(elements) {
+		var that = this;
+		elements.click(function() {
 			that._setSelected($(this).parent(), false);
 			that.count -= 1;
 			that._updateCount();
 			return false;
-    });
-  }
+		});
+ 	},
+	_registerSearchEvents: function(input) {
+		var that = this;
+		var defaultValue = $.trim(input.val());
+		var timer;
+	
+		input.focus(function() {
+			$(this).addClass('ui-state-active');
+		})
+		.blur(function() {
+			$(this).removeClass('ui-state-active');
+		})
+		.keyup(function() {
+			that._filter.apply(this, [that.availableList]);
+		}).keyup()
+		.parents('form').submit(function(){
+			return false;
+		});
+	}
 });
 		
 $.extend($.ui.multiselect, {
 	defaults: {
 		sortable: true,
 		searchable: true,
+		ajaxSearch: {
+			url: null,
+			params: {},
+			overrideLocal: false
+		},
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp'
+	},
+	locale: {
+		addAll:'Add all',
+		removeAll:'Remove all',
+		itemsSelected:'items selected'
 	}
 });
-	
+
 })(jQuery);
