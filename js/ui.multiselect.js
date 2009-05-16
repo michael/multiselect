@@ -2,7 +2,7 @@
  * jQuery UI Multiselect
  *
  * Authors:
- * 	Michael Aufreiter (quasipartikel.at)
+ *  Michael Aufreiter (quasipartikel.at)
  *  Yanick Rochon (yanick.rochon[at]gmail[dot]com)
  * 
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -14,29 +14,33 @@
  * Depends:
  *	ui.core.js
  *	ui.sortable.js
+ *
+ * Optional:
+ * localization (http://plugins.jquery.com/project/localisation)
  * 
  * Todo:
  *  Make batch actions faster
  */
 
-
-/* String.contains - taken from Mootools */
-String.prototype.contains = function(string, separator) {
-	return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
-};
+if ( !String.prototype.contains ) {
+	/* String.contains - taken from Mootools (default) */
+	String.prototype.contains = function(string, separator) {
+		return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
+	};
+}
 
 (function($) {
 
 $.widget("ui.multiselect", {
-  _init: function() {
+	_init: function() {
 		this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.count = 0; // number of currently selected options
 		this.selectedContainer = $('<div class="selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
-		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 items selected</span><a href="#" class="remove-all">Remove All</a></div>').appendTo(this.selectedContainer);
-		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search ui-widget-content ui-corner-all"/><a href="#" class="add-all">Add All</a></div>').appendTo(this.availableContainer);
+		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 items selected</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
+		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search empty ui-widget-content ui-corner-all"/><a href="#" class="add-all">'+$.ui.multiselect.locale.addAll+'</a></div>').appendTo(this.availableContainer);
 		this.selectedList = $('<ul class="selected connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.selectedContainer);
 		this.availableList = $('<ul class="available connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
 		
@@ -60,21 +64,21 @@ $.widget("ui.multiselect", {
 		
 		// make selection sortable
 		if (this.options.sortable) {
-      $("ul.selected").sortable({
-        placeholder: 'ui-state-highlight',
-        axis: 'y',
-			  update: function(event, ui) {
-			    // apply the new sort order to the original selectbox
-			    that.selectedList.find('li').each(function() {
-			      if ($(this).data('optionLink'))
+			$("ul.selected").sortable({
+				placeholder: 'ui-state-highlight',
+				axis: 'y',
+				update: function(event, ui) {
+					// apply the new sort order to the original selectbox
+					that.selectedList.find('li').each(function() {
+						if ($(this).data('optionLink'))
 							$(this).data('optionLink').remove().appendTo(that.element);
-			    });
-			  },
+					});
+				},
 				receive: function(event, ui) {
 					// increment count
 					that.count += 1;
 					that._updateCount();
-					
+
 					// workaround, because there's no way to reference 
 					// the new element, see http://dev.jqueryui.com/ticket/4303
 					that.selectedList.children('.ui-draggable').each(function() {
@@ -83,7 +87,7 @@ $.widget("ui.multiselect", {
 						$(this).data('idx', ui.item.data('idx'));
 						that._applyItemState($(this), true);
 					});
-					
+			
 					// workaround according to http://dev.jqueryui.com/ticket/4088
 					setTimeout(function() { ui.item.remove(); }, 1);
 				}
@@ -92,13 +96,7 @@ $.widget("ui.multiselect", {
 		
 		// set up livesearch
 		if (this.options.searchable) {
-			this.availableContainer.find('input.search')
-				.keyup(function() {
-					that._filter.apply(this, [that.availableList]);
-				}).keyup()
-				.parents('form').submit(function(){
-					return false;
-				});
+			this._registerSearchEvents(this.availableContainer.find('input.search'));
 		} else {
 			$('.search').hide();
 		}
@@ -112,21 +110,22 @@ $.widget("ui.multiselect", {
 			that._populateLists(that.element.find('option').attr('selected', 'selected'));
 			return false;
 		});
-  },
+	},
 	destroy: function() {
 		this.element.show();
 		this.container.remove();
 
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
-  _populateLists: function(options) {
-    this.selectedList.children('.ui-element').remove();
-    this.availableList.children('.ui-element').remove();
-    this.count = 0;
+	_populateLists: function(options) {
+		this.selectedList.children('.ui-element').remove();
+		this.availableList.children('.ui-element').remove();
+		this.count = 0;
 
-    var that = this;
-    var items = $(options.map(function(i) {
-      var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
+		var that = this;
+		var items = $(options.map(function(i) {
+	      var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
+
 			if (this.selected) that.count += 1;
 			that._applyItemState(item, this.selected);
 			item.data('idx', i);
@@ -137,15 +136,12 @@ $.widget("ui.multiselect", {
 		this._updateCount();
   },
 	_updateCount: function() {
-		this.selectedContainer.find('span.count').text(this.count+" items selected");
+		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsSelected);
 	},
 	_getOptionNode: function(option) {
-		var node = $('<li class="ui-state-default ui-element"> \
-			<span class="ui-icon"/> \
-			'+$(option).text()+'\
-			<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a> \
-			</li>').hide();
-		node.data('optionLink', $(option));
+		option = $(option);
+		var node = $('<li class="ui-state-default ui-element" title="'+option.text()+'"><span class="ui-icon"/>'+option.text()+'<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
+		node.data('optionLink', option);
 		return node;
 	},
 	// clones an item with 
@@ -170,14 +166,21 @@ $.widget("ui.multiselect", {
 		} else {
 			
 			// look for successor based on initial option index
-			var items = this.availableList.find('li');
-			var succ = null; var i = 0;
-			while (i<items.length) {
-				if ((i==0 && $(items[i]).data('idx') > item.data('idx')) || (($(items[i]).data('idx') > item.data('idx')) && ($(items[i-1]).data('idx') < item.data('idx')))) {
-					succ = items[i];
-					break;
+			var items = this.availableList.find('li'), comparator = this.options.nodeComparator;
+			var succ = null, i = item.data('idx'), direction = comparator(item, $(items[i]));
+
+			// TODO: test needed for dynamic list populating
+			if ( direction ) {
+				while (i>=0 && i<items.length) {
+					direction > 0 ? i++ : i--;
+					if ( direction != comparator(item, $(items[i])) ) {
+						// going up, go back one item down, otherwise leave as is
+						succ = items[direction > 0 ? i : i+1];
+						break;
+					}
 				}
-				i++;
+			} else {
+				succ = items[i];
 			}
 			
 			// clone the item
@@ -209,12 +212,14 @@ $.widget("ui.multiselect", {
 	},
 	// taken from John Resig's liveUpdate script
 	_filter: function(list) {
+		var input = $(this);
 		var rows = list.children('li'),
 			cache = rows.map(function(){
 				return this.innerHTML.toLowerCase();
 			});
 		
-		var term = $.trim( $(this).val().toLowerCase() ), scores = [];
+		var term = $.trim( input.val().toLowerCase() ), scores = [];
+		
 
 		if ( !term ) {
 			rows.show();
@@ -240,13 +245,13 @@ $.widget("ui.multiselect", {
 		});
 	},
 	_registerAddEvents: function(elements) {
-    var that = this;
-    elements.click(function() {
+		var that = this;
+		elements.click(function() {
 			var item = that._setSelected($(this).parent(), true);
 			that.count += 1;
 			that._updateCount();
 			return false;
-    });
+		});
 
 		// make draggable
 		elements.each(function() {
@@ -261,26 +266,60 @@ $.widget("ui.multiselect", {
 				containment: '.ui-multiselect'
 	    });
 		});
-  },
-  _registerRemoveEvents: function(elements) {
-    var that = this;
-    elements.click(function() {
+	},
+	_registerRemoveEvents: function(elements) {
+		var that = this;
+		elements.click(function() {
 			that._setSelected($(this).parent(), false);
 			that.count -= 1;
 			that._updateCount();
 			return false;
-    });
-  }
+		});
+ 	},
+	_registerSearchEvents: function(input) {
+		var that = this;
+		var defaultValue = $.trim(input.val());
+		var timer;
+	
+		input.focus(function() {
+			$(this).addClass('ui-state-active');
+		})
+		.blur(function() {
+			$(this).removeClass('ui-state-active');
+		})
+		.keyup(function() {
+			that._filter.apply(this, [that.availableList]);
+		}).keyup()
+		.parents('form').submit(function(){
+			return false;
+		});
+	}
 });
 		
 $.extend($.ui.multiselect, {
 	defaults: {
 		sortable: true,
 		searchable: true,
+		ajaxSearch: {
+			url: null,
+			params: {},
+			overrideLocal: false
+		},
 		animated: 'fast',
 		show: 'slideDown',
-		hide: 'slideUp'
+		hide: 'slideUp',
+		nodeComparator: function(node1,node2) {
+			var text1 = node1.text(),
+			    text2 = node2.text();
+			return text1 == text2 ? 0 : (text1 < text2 ? -1 : 1);
+		},
+		nodeInserted: function(event,ui,data) {}
+	},
+	locale: {
+		addAll:'Add all',
+		removeAll:'Remove all',
+		itemsCount:'items selected'
 	}
 });
-	
+
 })(jQuery);
