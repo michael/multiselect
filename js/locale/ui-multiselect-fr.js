@@ -4,10 +4,8 @@
  * @locale fr, fr-FR, fr-CA
  */
 
-$.extend($.ui.multiselect, {
-	locale: {
-		addAll:'Ajouter tout',
-		removeAll:'Supprimer tout',
-		itemsSelected:'items sélectionnés'
-	}
+$.extend($.ui.multiselect.locale, {
+	addAll:'Ajouter tout',
+	removeAll:'Supprimer tout',
+	itemsSelected:'items sélectionnés'
 });
