@@ -5,19 +5,21 @@
 	<title>jQuery UI Multiselect</title> 
 	<link rel="stylesheet" href="css/common.css" type="text/css" />
 	<link type="text/css" rel="stylesheet" href="http://jqueryui.com/themes/base/ui.all.css" />
-  <link type="text/css" href="css/ui.multiselect.css" rel="stylesheet" />
+	<link type="text/css" href="css/ui.multiselect.css" rel="stylesheet" />
 	<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
-  <script type="text/javascript" src="js/jquery-ui-1.7.1.custom.min.js"></script>
-  <script type="text/javascript" src="js/plugins/jquery.localisation.js"></script>
-  <script type="text/javascript" src="js/ui.multiselect.js"></script>
-  <script type="text/javascript">
-    $(function(){
-      $(".multiselect").multiselect();
-      $('#switcher').themeswitcher();
-    });
-  </script>
-</head> 
-<body> 
+	<script type="text/javascript" src="js/jquery-ui-1.7.1.custom.min.js"></script>
+	<script type="text/javascript" src="js/plugins/localisation/jquery.localisation-min.js"></script>
+	<script type="text/javascript" src="js/plugins/scrollTo/jquery.scrollTo-min.js"></script>
+	<script type="text/javascript" src="js/ui.multiselect.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$.localise('ui-multiselect', {language: 'en', path: 'js/locale/'});
+			$(".multiselect").multiselect();
+			$('#switcher').themeswitcher();
+		});
+	</script>
+</head>
+<body>
 <a href="http://github.com/michael/multiselect"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
  
 <div id="wrapper"> 

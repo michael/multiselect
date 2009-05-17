@@ -7,5 +7,5 @@
 $.extend($.ui.multiselect.locale, {
 	addAll:'Add all',
 	removeAll:'Remove all',
-	itemsSelected:'items selected'
+	itemsCount:'items selected'
 });

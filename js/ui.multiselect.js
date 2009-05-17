@@ -17,9 +17,11 @@
  *
  * Optional:
  * localization (http://plugins.jquery.com/project/localisation)
+ * scrollTo (http://plugins.jquery.com/project/ScrollTo)
  * 
  * Todo:
  *  Make batch actions faster
+ *  Implement dynamic insertion through remote calls
  */
 
 if ( !String.prototype.contains ) {
@@ -48,8 +50,8 @@ $.widget("ui.multiselect", {
 
 		// set dimensions
 		this.container.width(this.element.width()+1);
-		this.selectedContainer.width(Math.floor(this.element.width()*0.6));
-		this.availableContainer.width(Math.floor(this.element.width()*0.4));
+		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation));
+		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation)));
 
 		this.selectedList.height(this.element.height());
 		this.availableList.height(this.element.height());
@@ -308,6 +310,7 @@ $.extend($.ui.multiselect, {
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp',
+		dividerLocation: 0.6,
 		nodeComparator: function(node1,node2) {
 			var text1 = node1.text(),
 			    text2 = node2.text();
