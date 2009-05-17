@@ -136,7 +136,7 @@ $.widget("ui.multiselect", {
 		this._updateCount();
   },
 	_updateCount: function() {
-		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsSelected);
+		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsCount);
 	},
 	_getOptionNode: function(option) {
 		option = $(option);
@@ -299,7 +299,7 @@ $.widget("ui.multiselect", {
 $.extend($.ui.multiselect, {
 	defaults: {
 		sortable: true,
-		searchable: true,
+		searchable: false,
 		ajaxSearch: {
 			url: null,
 			params: {},
