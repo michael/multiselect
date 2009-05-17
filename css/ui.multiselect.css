@@ -7,10 +7,10 @@
 .ui-multiselect ul li a { color: #999; text-decoration: none; padding: 0; display: block; float: left; cursor: pointer;}
 .ui-multiselect div.selected { padding: 0; margin: 0; border: 0; float:left; position: relative; }
 
-.ui-multiselect ul.selected { padding: 0; overflow-y: auto; background: #fff; margin: 0; list-style: none; border: 0; position: relative; width: 100%; }
+.ui-multiselect ul.selected { padding: 0; overflow: auto; /*makes IE6 happy*/ overflow-y: auto; background: #fff; margin: 0; list-style: none; border: 0; position: relative; width: 100%; }
 .ui-multiselect ul.selected li { }
 .ui-multiselect div.available { padding: 0; margin: 0; border: 0; float:left; position: relative; border-left: 1px solid; }
-.ui-multiselect ul.available { padding: 0; overflow-y: auto; background: #fff; margin: 0; list-style: none; border: 0; width: 100%; }
+.ui-multiselect ul.available { padding: 0; overflow: auto; /*makes IE6 happy*/ overflow-y: auto; background: #fff; margin: 0; list-style: none; border: 0; width: 100%; }
 .ui-multiselect ul.available li { padding-left: 10px; }
 
 .ui-multiselect .ui-state-default { border: none; margin-bottom: 1px; position: relative; padding-left: 20px;}
