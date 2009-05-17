@@ -1,7 +1,7 @@
 /* Multiselect
 ----------------------------------*/
 
-.ui-multiselect { margin:2px 0 30px 10px; border: solid 1px; font-size: 0.8em; }
+.ui-multiselect { border: solid 1px; font-size: 0.8em; }
 .ui-multiselect ul { -moz-user-select: none; }
 .ui-multiselect ul li { cursor: default; line-height: 20px; height: 20px; font-size: 11px; }
 .ui-multiselect ul li a { color: #999; text-decoration: none; padding: 0; display: block; float: left; cursor: pointer;}
