@@ -24,12 +24,6 @@
  *  Implement dynamic insertion through remote calls
  */
 
-if ( !String.prototype.contains ) {
-	/* String.contains - taken from Mootools (default) */
-	String.prototype.contains = function(string, separator) {
-		return (separator) ? (separator + this + separator).indexOf(separator + string + separator) > -1 : this.indexOf(string) > -1;
-	};
-}
 
 (function($) {
 
@@ -216,7 +210,8 @@ $.widget("ui.multiselect", {
 		var input = $(this);
 		var rows = list.children('li'),
 			cache = rows.map(function(){
-				return this.innerHTML.toLowerCase();
+				
+				return $(this).text().toLowerCase();
 			});
 		
 		var term = $.trim(input.val().toLowerCase()), scores = [];
@@ -227,7 +222,7 @@ $.widget("ui.multiselect", {
 			rows.hide();
 
 			cache.each(function(i) {
-				if (this.contains(term)) { scores.push(i); }
+				if (this.indexOf(term)>-1) { scores.push(i); }
 			});
 
 			$.each(scores, function() {
