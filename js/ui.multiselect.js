@@ -53,8 +53,9 @@ $.widget("ui.multiselect", {
 		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation));
 		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation)));
 
-		this.selectedList.height(this.element.height());
-		this.availableList.height(this.element.height());
+		// fix list height to match <option> depending on their individual header's heights
+		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
+		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
 		
 		if ( !this.options.animated ) {
 			this.options.show = 'show';
@@ -253,19 +254,19 @@ $.widget("ui.multiselect", {
 			that.count += 1;
 			that._updateCount();
 			return false;
-		});
-
+		})
 		// make draggable
-		elements.each(function() {
+		.each(function() {
 			$(this).parent().draggable({
 	      connectToSortable: 'ul.selected',
 				helper: function() {
-					var selectedItem = that._cloneWithData($(this));
+					var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
 					selectedItem.width($(this).width());
 					return selectedItem;
 				},
-				revert: 'invalid',
-				containment: '.ui-multiselect'
+				appendTo: '.ui-multiselect',
+				containment: '.ui-multiselect',
+				revert: 'invalid'
 	    });
 		});
 	},
@@ -280,8 +281,7 @@ $.widget("ui.multiselect", {
  	},
 	_registerSearchEvents: function(input) {
 		var that = this;
-		var defaultValue = $.trim(input.val());
-		var timer;
+		var timer, delay = this.options.ajaxSearch.delay;
 	
 		input.focus(function() {
 			$(this).addClass('ui-state-active');
@@ -289,12 +289,58 @@ $.widget("ui.multiselect", {
 		.blur(function() {
 			$(this).removeClass('ui-state-active');
 		})
-		.keyup(function() {
+		.keydown(function(e) {
+			switch (e.which) {
+				// ignore these keys
+				case 16:   // shift
+				case 17:   // control
+				case 18:   // alt
+					break;
+
+				case 13:   // enter
+					if (timer) clearTimeout(timer);
+					that._searchNow();
+					return false;
+
+				default:
+					if (timer) clearTimeout(timer);
+			}
+		})
+		.keypress(function(e) {
+			switch (e.which) {
+				case 13:   // enter
+					return false;
+			}
+		})
+		.keyup(function(e) {
+			//alert( e.which );
+			switch (e.which) {
+				// ignore these keys
+				case 16:   // shift
+				case 17:   // control
+				case 18:   // alt
+					break;
+					
+				case 13:
+					break;
+				
+				//case 46:   // del
+				//case 8:    // backspace
+					//if (2 > $.trim($(this).val()).length) {
+					//	break;
+					//}
+				default:
+					timer = setTimeout(function() { that._searchNow(); }, delay);
+			}
+
 			that._filter.apply(this, [that.availableList]);
 		}).keyup()
 		.parents('form').submit(function(){
 			return false;
 		});
+	},
+	_searchNow: function() {
+		// TODO : implement this
 	}
 });
 		
@@ -305,7 +351,8 @@ $.extend($.ui.multiselect, {
 		ajaxSearch: {
 			url: null,
 			params: {},
-			overrideLocal: false
+			overrideLocal: false,
+			delay: 400
 		},
 		animated: 'fast',
 		show: 'slideDown',
