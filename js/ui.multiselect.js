@@ -53,8 +53,9 @@ $.widget("ui.multiselect", {
 		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation));
 		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation)));
 
-		this.selectedList.height(this.element.height());
-		this.availableList.height(this.element.height());
+		// fix list height to match <option> depending on their individual header's heights
+		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
+		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
 		
 		if ( !this.options.animated ) {
 			this.options.show = 'show';
@@ -253,19 +254,19 @@ $.widget("ui.multiselect", {
 			that.count += 1;
 			that._updateCount();
 			return false;
-		});
-
+		})
 		// make draggable
-		elements.each(function() {
+		.each(function() {
 			$(this).parent().draggable({
 	      connectToSortable: 'ul.selected',
 				helper: function() {
-					var selectedItem = that._cloneWithData($(this));
+					var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
 					selectedItem.width($(this).width());
 					return selectedItem;
 				},
-				revert: 'invalid',
-				containment: '.ui-multiselect'
+				appendTo: '.ui-multiselect',
+				containment: '.ui-multiselect',
+				revert: 'invalid'
 	    });
 		});
 	},
@@ -280,8 +281,6 @@ $.widget("ui.multiselect", {
  	},
 	_registerSearchEvents: function(input) {
 		var that = this;
-		var defaultValue = $.trim(input.val());
-		var timer;
 	
 		input.focus(function() {
 			$(this).addClass('ui-state-active');
@@ -289,9 +288,6 @@ $.widget("ui.multiselect", {
 		.blur(function() {
 			$(this).removeClass('ui-state-active');
 		})
-		.keyup(function() {
-			that._filter.apply(this, [that.availableList]);
-		}).keyup()
 		.parents('form').submit(function(){
 			return false;
 		});
@@ -302,11 +298,6 @@ $.extend($.ui.multiselect, {
 	defaults: {
 		sortable: true,
 		searchable: true,
-		ajaxSearch: {
-			url: null,
-			params: {},
-			overrideLocal: false
-		},
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp',
@@ -315,8 +306,7 @@ $.extend($.ui.multiselect, {
 			var text1 = node1.text(),
 			    text2 = node2.text();
 			return text1 == text2 ? 0 : (text1 < text2 ? -1 : 1);
-		},
-		nodeInserted: function(event,ui,data) {}
+		}
 	},
 	locale: {
 		addAll:'Add all',
