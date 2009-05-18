@@ -147,7 +147,7 @@ $.widget("ui.multiselect", {
 		node.data('optionLink', option);
 		return node;
 	},
-	// clones an item with 
+	// clones an item with associated data
 	// didn't find a smarter away around this
 	_cloneWithData: function(clonee) {
 		var clone = clonee.clone();
@@ -159,7 +159,6 @@ $.widget("ui.multiselect", {
 		item.data('optionLink').attr('selected', selected);
 
 		if (selected) {
-			// clone the item
 			var selectedItem = this._cloneWithData(item);
 			item[this.options.hide](this.options.animated, function() { $(this).remove(); });
 			selectedItem.appendTo(this.selectedList).hide()[this.options.show](this.options.animated);
@@ -186,7 +185,6 @@ $.widget("ui.multiselect", {
 				succ = items[i];
 			}
 			
-			// clone the item
 			var availableItem = this._cloneWithData(item);
 			succ ? availableItem.insertBefore($(succ)) : availableItem.appendTo(this.availableList);
 			item[this.options.hide](this.options.animated, function() { $(this).remove(); });
@@ -221,10 +219,9 @@ $.widget("ui.multiselect", {
 				return this.innerHTML.toLowerCase();
 			});
 		
-		var term = $.trim( input.val().toLowerCase() ), scores = [];
+		var term = $.trim(input.val().toLowerCase()), scores = [];
 		
-
-		if ( !term ) {
+		if (!term) {
 			rows.show();
 		} else {
 			rows.hide();
@@ -234,7 +231,7 @@ $.widget("ui.multiselect", {
 			});
 
 			$.each(scores, function() {
-				$(rows[ this ]).show();
+				$(rows[this]).show();
 			});
 		}
 	},
@@ -280,17 +277,20 @@ $.widget("ui.multiselect", {
 		});
  	},
 	_registerSearchEvents: function(input) {
-		var that = this;
-	
-		input.focus(function() {
-			$(this).addClass('ui-state-active');
-		})
-		.blur(function() {
-			$(this).removeClass('ui-state-active');
-		})
-		.parents('form').submit(function(){
-			return false;
-		});
+    var that = this;
+  
+    input.focus(function() {
+      $(this).addClass('ui-state-active');
+    })
+    .blur(function() {
+      $(this).removeClass('ui-state-active');
+    })
+    .keyup(function() {
+      that._filter.apply(this, [that.availableList]);
+    }).keyup()
+    .parents('form').submit(function(){
+      return false;
+    });
 	}
 });
 		
