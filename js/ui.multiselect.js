@@ -38,11 +38,10 @@ $.widget("ui.multiselect", {
 		this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
-		this.count = 0; // number of currently selected options
 		this.selectedContainer = $('<div class="selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
-		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 items selected</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
-		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search empty ui-widget-content ui-corner-all"/><a href="#" class="add-all">'+$.ui.multiselect.locale.addAll+'</a></div>').appendTo(this.availableContainer);
+		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0'+$.ui.multiselect.locale.itemsCount+'</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
+		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="busy">'+$.ui.multiselect.locale.busy+'</span><input type="text" class="search empty ui-widget-content ui-corner-all"/><a href="#" class="add-all">'+$.ui.multiselect.locale.addAll+'</a></div>').appendTo(this.availableContainer);
 		this.selectedList = $('<ul class="selected connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.selectedContainer);
 		this.availableList = $('<ul class="available connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
 		
@@ -78,8 +77,6 @@ $.widget("ui.multiselect", {
 					});
 				},
 				receive: function(event, ui) {
-					// increment count
-					that.count += 1;
 					that._updateCount();
 
 					// workaround, because there's no way to reference 
@@ -101,8 +98,9 @@ $.widget("ui.multiselect", {
 		if (this.options.searchable) {
 			this._registerSearchEvents(this.availableContainer.find('input.search'));
 		} else {
-			$('.search').hide();
+			this.availableContainer.find('input.search').hide();
 		}
+		this.availableContainer.find('.busy').hide();
 		
 		// batch actions
 		$(".remove-all").click(function() {
@@ -115,31 +113,29 @@ $.widget("ui.multiselect", {
 		});
 	},
 	destroy: function() {
-		this.element.show();
 		this.container.remove();
+		this.element.show();
 
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
 	_populateLists: function(options) {
 		this.selectedList.children('.ui-element').remove();
 		this.availableList.children('.ui-element').remove();
-		this.count = 0;
 
 		var that = this;
-		var items = $(options.map(function(i) {
+		var items = $(options.each(function() {
 	      var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
 
-			if (this.selected) that.count += 1;
 			that._applyItemState(item, this.selected);
 			item.data('idx', i);
-			return item[0];
-    }));
+	    }));
 		
 		// update count
 		this._updateCount();
-  },
+	},
 	_updateCount: function() {
-		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsCount);
+		var count = this.selectedList.children('li:not(.ui-helper-hidden-accessible)').size();
+		this.selectedContainer.find('span.count').text(count+" "+$.ui.multiselect.locale.itemsCount);
 	},
 	_getOptionNode: function(option) {
 		option = $(option);
@@ -156,44 +152,62 @@ $.widget("ui.multiselect", {
 		return clone;
 	},
 	_setSelected: function(item, selected) {
+		var that = this;
 		item.data('optionLink').attr('selected', selected);
 
 		if (selected) {
 			// clone the item
-			var selectedItem = this._cloneWithData(item);
-			item[this.options.hide](this.options.animated, function() { $(this).remove(); });
+			var selectedItem = this._cloneWithData(item).data('itemLink', item);
 			selectedItem.appendTo(this.selectedList).hide()[this.options.show](this.options.animated);
+			item[this.options.hide](this.options.animated, function() { that._updateCount(); });
 			
 			this._applyItemState(selectedItem, true);
 			return selectedItem;
 		} else {
 			
-			// look for successor based on initial option index
-			var items = this.availableList.find('li'), comparator = this.options.nodeComparator;
-			var succ = null, i = item.data('idx'), direction = comparator(item, $(items[i]));
+			// retrieve associated or clone the item
+			var availableItem = item.data('itemLink');
+			if (!availableItem) {
+				// look for successor based on initial option index
+				var items = this.availableList.find('li'), comparator = this.options.nodeComparator;
+				var succ = null, i = Math.min(item.data('idx'),items.size()-1), direction = comparator(item, $(items[i]));
 
-			// TODO: test needed for dynamic list populating
-			if ( direction ) {
-				while (i>=0 && i<items.length) {
-					direction > 0 ? i++ : i--;
-					if ( direction != comparator(item, $(items[i])) ) {
-						// going up, go back one item down, otherwise leave as is
-						succ = items[direction > 0 ? i : i+1];
-						break;
+				// TODO: test needed for dynamic list populating
+				if ( direction ) {
+					while (i>=0 && i<items.length) {
+						direction > 0 ? i++ : i--;
+						if ( direction != comparator(item, $(items[i])) ) {
+							// going up, go back one item down, otherwise leave as is
+							succ = items[direction > 0 ? i : i+1];
+							break;
+						}
 					}
+					// update idx
+					item.data('idx', i);
+				} else {
+					succ = items[i];
 				}
-			} else {
-				succ = items[i];
+			
+				availableItem = this._applyItemState(this._cloneWithData(item).hide(), false);
+				succ ? availableItem.insertBefore($(succ)) : availableItem.appendTo(this.availableList);
 			}
+			item[this.options.hide](this.options.animated, function() { $(this).remove(); that._updateCount() });
+			availableItem[this.options.show](this.options.animated);
 			
-			// clone the item
-			var availableItem = this._cloneWithData(item);
-			succ ? availableItem.insertBefore($(succ)) : availableItem.appendTo(this.availableList);
-			item[this.options.hide](this.options.animated, function() { $(this).remove(); });
-			availableItem.hide()[this.options.show](this.options.animated);
-			
-			this._applyItemState(availableItem, false);
 			return availableItem;
+		}
+	},
+	_setBusy: function(state) {
+		var input = this.availableContainer.find('input.search');
+		var busy = this.availableContainer.find('.busy');
+	
+		if (state) {
+			input.data('hasFocus', document.activeElement == input[0]).hide();
+			busy.show();
+		} else {
+			input.show();
+			busy.hide();
+			if (input.data('hasFocus')) input.focus();
 		}
 	},
 	_applyItemState: function(item, selected) {
@@ -212,47 +226,35 @@ $.widget("ui.multiselect", {
 		}
 		
 		this._registerHoverEvents(item);
+
+		return item;
 	},
 	// taken from John Resig's liveUpdate script
-	_filter: function(list) {
-		var input = $(this);
-		var rows = list.children('li'),
-			cache = rows.map(function(){
-				return this.innerHTML.toLowerCase();
-			});
+	// optimized for the multiselect context (yr)
+	_filter: function(input, elements) {
+		var term = $.trim( input.val().toLowerCase() );
 		
-		var term = $.trim( input.val().toLowerCase() ), scores = [];
-		
-
 		if ( !term ) {
-			rows.show();
+			elements.show();
 		} else {
-			rows.hide();
-
-			cache.each(function(i) {
-				if (this.contains(term)) { scores.push(i); }
-			});
-
-			$.each(scores, function() {
-				$(rows[ this ]).show();
+			elements.each(function(i,element) {
+				$(element)[element.innerHTML.toLowerCase().contains(term) ? 'show' : 'hide']();
 			});
 		}
 	},
 	_registerHoverEvents: function(elements) {
-		elements.removeClass('ui-state-hover');
-		elements.mouseover(function() {
+		elements.removeClass('ui-state-hover')
+		.bind('mouseover.multiselect', function() {
 			$(this).addClass('ui-state-hover');
-		});
-		elements.mouseout(function() {
+		})
+		.bind('mouseout.multiselect', function() {
 			$(this).removeClass('ui-state-hover');
 		});
 	},
 	_registerAddEvents: function(elements) {
 		var that = this;
-		elements.click(function() {
+		elements.bind('click.multiselect', function() {
 			var item = that._setSelected($(this).parent(), true);
-			that.count += 1;
-			that._updateCount();
 			return false;
 		})
 		// make draggable
@@ -272,92 +274,74 @@ $.widget("ui.multiselect", {
 	},
 	_registerRemoveEvents: function(elements) {
 		var that = this;
-		elements.click(function() {
+		elements.bind('click.multiselect', function() {
 			that._setSelected($(this).parent(), false);
-			that.count -= 1;
-			that._updateCount();
 			return false;
 		});
  	},
 	_registerSearchEvents: function(input) {
 		var that = this;
-		var timer, delay = this.options.ajaxSearch.delay;
+		var searchUrl = this.options.remoteUrl,
+		    delay = Math.max(this.options.searchDelay,1),
+		    previousValue = input.val(), timer;
 	
-		input.focus(function() {
+		var _searchNow = function() {
+			// TODO : implement this
+			var value = input.val();
+			if (value != previousValue) {
+				//that._setBusy(true);
+
+				if (searchUrl) {				
+					alert( "Remote Searching... " + value);
+				} else {
+					that._filter(input, that.availableList.children('li'));
+				}
+
+				previousValue = value;
+				//that._setBusy(false);
+			}
+		};
+
+		input.parents('form').submit(function(){
+			return false;
+		})
+		.bind('focus.multiselect', function() {
 			$(this).addClass('ui-state-active');
 		})
-		.blur(function() {
+		.bind('blur.multiselect', function() {
 			$(this).removeClass('ui-state-active');
 		})
-		.keydown(function(e) {
+		.bind('keydown.multiselect keypress.multiselect', function(e) {
+			if (timer) clearTimeout(timer);
 			switch (e.which) {
-				// ignore these keys
-				case 16:   // shift
-				case 17:   // control
-				case 18:   // alt
-					break;
-
 				case 13:   // enter
-					if (timer) clearTimeout(timer);
-					that._searchNow();
+					_searchNow();
 					return false;
 
 				default:
-					if (timer) clearTimeout(timer);
+					timer = setTimeout(function() { _searchNow(); }, delay);
 			}
-		})
-		.keypress(function(e) {
-			switch (e.which) {
-				case 13:   // enter
-					return false;
-			}
-		})
-		.keyup(function(e) {
-			//alert( e.which );
-			switch (e.which) {
-				// ignore these keys
-				case 16:   // shift
-				case 17:   // control
-				case 18:   // alt
-					break;
-					
-				case 13:
-					break;
-				
-				//case 46:   // del
-				//case 8:    // backspace
-					//if (2 > $.trim($(this).val()).length) {
-					//	break;
-					//}
-				default:
-					timer = setTimeout(function() { that._searchNow(); }, delay);
-			}
-
-			that._filter.apply(this, [that.availableList]);
-		}).keyup()
-		.parents('form').submit(function(){
-			return false;
-		});
-	},
-	_searchNow: function() {
-		// TODO : implement this
+		})//.trigger('keypress.multiselect')
+		;
 	}
 });
 		
 $.extend($.ui.multiselect, {
 	defaults: {
+		// sortable
 		sortable: true,
+		// searchable
 		searchable: true,
-		ajaxSearch: {
-			url: null,
-			params: {},
-			overrideLocal: false,
-			delay: 400
-		},
+		searchDelay: 400,
+		remoteUrl: null,
+		remoteParams: {},
+		// animated
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp',
+		// ui
 		dividerLocation: 0.6,
+		// callbacks
 		nodeComparator: function(node1,node2) {
 			var text1 = node1.text(),
 			    text2 = node2.text();
@@ -368,7 +352,8 @@ $.extend($.ui.multiselect, {
 	locale: {
 		addAll:'Add all',
 		removeAll:'Remove all',
-		itemsCount:'items selected'
+		itemsCount:'items selected',
+		busy:'please wait...'
 	}
 });
 

@@ -39,6 +39,8 @@
 	.right {float:right;}
 	.clear {clear:both;}
 	
+	dt { font-weight: bold; font-size: 110%; padding-bottom: 10px; }
+	dd { margin-left: 20px; padding-bottom: 20px; }
 	
 	/* multiselect styles */
 	.multiselect {
