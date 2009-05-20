@@ -53,12 +53,6 @@ $.widget("ui.multiselect", {
 		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation));
 		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation)));
 
-		// set max with of search input dynamically
-		this.availableActions.find('input').width(Math.max(this.availableActions.width() - this.availableActions.find('a.add-all').width() - 40, 20));
-		// fix list height to match <option> depending on their individual header's heights
-		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
-		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
-
 		// initialize data cache
 		this.availableList.data('cache', {});
 		this.selectedList.data('cache', {});
@@ -67,9 +61,6 @@ $.widget("ui.multiselect", {
 			this.options.show = 'show';
 			this.options.hide = 'hide';
 		}
-		
-		// init lists
-		this._populateLists(this.element.find('option'));
 		
 		// make selection sortable
 		if (this.options.sortable) {
@@ -118,6 +109,15 @@ $.widget("ui.multiselect", {
 			that._batchSelect(that.availableList.children('li.ui-element:visible'), true);	
 			return false;
 		});
+
+		// set max with of search input dynamically
+		this.availableActions.find('input').width(Math.max(this.availableActions.width() - this.availableActions.find('a.add-all').width() - 30, 20));
+		// fix list height to match <option> depending on their individual header's heights
+		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
+		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
+
+		// init lists
+		this._populateLists(this.element.find('option'));
 	},
 	destroy: function() {
 		this.container.remove();
@@ -126,18 +126,21 @@ $.widget("ui.multiselect", {
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
 	_populateLists: function(options) {
-		//this.selectedList.children('.ui-element').remove();
-		//this.availableList.children('.ui-element').remove();
-
+		this._setBusy(true);
+	
 		var that = this;
-		var items = $(options.each(function() {
-	      var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
-			that._applyItemState(item, this.selected);
-			item.data('idx', i);
-	    }));
+		// do this async so the browser actually display the waiting message
+		setTimeout(function() {
+			$(options.each(function() {
+		      var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
+				that._applyItemState(item, this.selected);
+				item.data('idx', i);
+		    }));
 		
-		// update count
-		this._updateCount();
+			// update count
+			that._setBusy(false);
+			that._updateCount();
+		}, 10);
 	},
 	_updateCount: function() {
 		if (this.busy) return;
@@ -174,28 +177,29 @@ $.widget("ui.multiselect", {
 	_batchSelect: function(elements, state) {
 		this._setBusy(true);
 
-		alert( "ok ");
-
 		var that = this;
-		var _backup = {
-			animated: this.options.animated,
-			hide: this.options.hide,
-			show: this.options.show
-		};
+		// do this async so the browser actually display the waiting message
+		setTimeout(function() {
+			var _backup = {
+				animated: that.options.animated,
+				hide: that.options.hide,
+				show: that.options.show
+			};
 
-		this.options.animated = null;
-		this.options.hide = 'hide';
-		this.options.show = 'show';
+			that.options.animated = null;
+			that.options.hide = 'hide';
+			that.options.show = 'show';
 
-		elements.each(function(i,element) {
-			that._setSelected($(element), state);
-		});
+			elements.each(function(i,element) {
+				that._setSelected($(element), state);
+			});
 
-		// restore
-		$.extend(this.options, _backup);
+			// restore
+			$.extend(that.options, _backup);
 
-		this._setBusy(false);
-		this._updateCount();
+			that._setBusy(false);
+			that._updateCount();
+		}, 10);
 	},
 	_setSelected: function(item, selected) {
 		var that = this;
@@ -302,7 +306,8 @@ $.widget("ui.multiselect", {
 	_registerAddEvents: function(elements) {
 		var that = this;
 		elements.bind('click.multiselect', function() {
-			var item = that._setSelected($(this).parent(), true);
+			// ignore if busy...
+			if (!this.busy) that._setSelected($(this).parent(), true);
 			return false;
 		})
 		// make draggable
@@ -323,7 +328,8 @@ $.widget("ui.multiselect", {
 	_registerRemoveEvents: function(elements) {
 		var that = this;
 		elements.bind('click.multiselect', function() {
-			that._setSelected($(this).parent(), false);
+			// ignore if busy...
+			if (!this.busy) that._setSelected($(this).parent(), false);
 			return false;
 		});
  	},
