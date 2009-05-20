@@ -37,6 +37,7 @@ $.widget("ui.multiselect", {
 	_init: function() {
 		this.element.hide();
 		this.id = this.element.attr("id");
+		this.busy = false;  // busy state
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.selectedContainer = $('<div class="selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
@@ -52,9 +53,15 @@ $.widget("ui.multiselect", {
 		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation));
 		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation)));
 
+		// set max with of search input dynamically
+		this.availableActions.find('input').width(Math.max(this.availableActions.width() - this.availableActions.find('a.add-all').width() - 40, 20));
 		// fix list height to match <option> depending on their individual header's heights
 		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
 		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
+
+		// initialize data cache
+		this.availableList.data('cache', {});
+		this.selectedList.data('cache', {});
 		
 		if ( !this.options.animated ) {
 			this.options.show = 'show';
@@ -103,12 +110,12 @@ $.widget("ui.multiselect", {
 		this.availableContainer.find('.busy').hide();
 		
 		// batch actions
-		$(".remove-all").click(function() {
-			that._populateLists(that.element.find('option').removeAttr('selected'));
+		this.container.find(".remove-all").bind('click.multiselect', function() {
+			that._batchSelect(that.selectedList.children('li.ui-element:visible'), false);	
 			return false;
 		});
-		$(".add-all").click(function() {
-			that._populateLists(that.element.find('option').attr('selected', 'selected'));
+		this.container.find(".add-all").bind('click.multiselect', function() {
+			that._batchSelect(that.availableList.children('li.ui-element:visible'), true);	
 			return false;
 		});
 	},
@@ -119,13 +126,12 @@ $.widget("ui.multiselect", {
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
 	_populateLists: function(options) {
-		this.selectedList.children('.ui-element').remove();
-		this.availableList.children('.ui-element').remove();
+		//this.selectedList.children('.ui-element').remove();
+		//this.availableList.children('.ui-element').remove();
 
 		var that = this;
 		var items = $(options.each(function() {
 	      var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
-
 			that._applyItemState(item, this.selected);
 			item.data('idx', i);
 	    }));
@@ -134,7 +140,9 @@ $.widget("ui.multiselect", {
 		this._updateCount();
 	},
 	_updateCount: function() {
-		var count = this.selectedList.children('li:not(.ui-helper-hidden-accessible)').size();
+		if (this.busy) return;
+		// count only visible <li> (less .ui-helper-hidden*)
+		var count = this.selectedList.children('li:not(.ui-helper-hidden-accessible):visible').size();
 		this.selectedContainer.find('span.count').text(count+" "+$.ui.multiselect.locale.itemsCount);
 	},
 	_getOptionNode: function(option) {
@@ -145,11 +153,49 @@ $.widget("ui.multiselect", {
 	},
 	// clones an item with 
 	// didn't find a smarter away around this
-	_cloneWithData: function(clonee) {
-		var clone = clonee.clone();
-		clone.data('optionLink', clonee.data('optionLink'));
+	// now using cache to speed up the process
+	_cloneWithData: function(clonee, cacheName) {
+		var id = clonee.data('optionLink').val();
+		var selected = ('selected' == cacheName);
+		var cache = (selected ? this.selectedList : this.availableList).data('cache');
+		var clone = cache[id];
+		if (!clone) {
+			clone = clonee.clone();
+			clone.data('optionLink', clonee.data('optionLink'));
+
+			this._applyItemState(clone, selected);
+			// update cache
+			cache[id] = clone;
+		}
+		// update idx
 		clone.data('idx', clonee.data('idx'));
 		return clone;
+	},
+	_batchSelect: function(elements, state) {
+		this._setBusy(true);
+
+		alert( "ok ");
+
+		var that = this;
+		var _backup = {
+			animated: this.options.animated,
+			hide: this.options.hide,
+			show: this.options.show
+		};
+
+		this.options.animated = null;
+		this.options.hide = 'hide';
+		this.options.show = 'show';
+
+		elements.each(function(i,element) {
+			that._setSelected($(element), state);
+		});
+
+		// restore
+		$.extend(this.options, _backup);
+
+		this._setBusy(false);
+		this._updateCount();
 	},
 	_setSelected: function(item, selected) {
 		var that = this;
@@ -157,15 +203,14 @@ $.widget("ui.multiselect", {
 
 		if (selected) {
 			// clone the item
-			var selectedItem = this._cloneWithData(item).data('itemLink', item);
+			var selectedItem = this._cloneWithData(item, 'selected').data('itemLink', item);
 			selectedItem.appendTo(this.selectedList).hide()[this.options.show](this.options.animated);
 			item[this.options.hide](this.options.animated, function() { that._updateCount(); });
 			
-			this._applyItemState(selectedItem, true);
 			return selectedItem;
 		} else {
-			
 			// retrieve associated or clone the item
+			// TODO : remove itemLink in favor of the cache (perhaps move sort algorithm to a separate function)
 			var availableItem = item.data('itemLink');
 			if (!availableItem) {
 				// look for successor based on initial option index
@@ -188,10 +233,10 @@ $.widget("ui.multiselect", {
 					succ = items[i];
 				}
 			
-				availableItem = this._applyItemState(this._cloneWithData(item).hide(), false);
+				availableItem = this._cloneWithData(item, 'available').hide();
 				succ ? availableItem.insertBefore($(succ)) : availableItem.appendTo(this.availableList);
 			}
-			item[this.options.hide](this.options.animated, function() { $(this).remove(); that._updateCount() });
+			item[this.options.hide](this.options.animated, function() { that._updateCount() });
 			availableItem[this.options.show](this.options.animated);
 			
 			return availableItem;
@@ -201,6 +246,7 @@ $.widget("ui.multiselect", {
 		var input = this.availableContainer.find('input.search');
 		var busy = this.availableContainer.find('.busy');
 	
+		this.container.find("a.remove-all, a.add-all")[state ? 'hide' : 'show']();
 		if (state) {
 			input.data('hasFocus', document.activeElement == input[0]).hide();
 			busy.show();
@@ -209,6 +255,8 @@ $.widget("ui.multiselect", {
 			busy.hide();
 			if (input.data('hasFocus')) input.focus();
 		}
+
+		this.busy = state;
 	},
 	_applyItemState: function(item, selected) {
 		if (selected) {
@@ -266,8 +314,8 @@ $.widget("ui.multiselect", {
 					selectedItem.width($(this).width());
 					return selectedItem;
 				},
-				appendTo: '.ui-multiselect',
-				containment: '.ui-multiselect',
+				appendTo: that.container,
+				containment: that.container,
 				revert: 'invalid'
 	    });
 		});
