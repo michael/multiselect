@@ -28,7 +28,7 @@
 session_start();
 
 // the default limit if the parameter is not specified
-define('DEFAULT_LIMIT', 30);
+define('DEFAULT_LIMIT', 50);
 
 
 //unset($_SESSION['data']);
@@ -47,9 +47,10 @@ if ( !isset($_SESSION['data']) ) {
 
 header('Content-type: text/plain; charset=utf-8');
 
+$limit = isset($_GET['limit']) && !empty($_GET['limit']) ? $_GET['limit'] : DEFAULT_LIMIT;
+
 if ( isset($_GET['q']) && !empty($_GET['q']) ) {
 
-	$limit = isset($_GET['limit']) && !empty($_GET['limit']) ? $_GET['limit'] : DEFAULT_LIMIT;
 
 	$count = 0;
 	foreach ($data as $code => $lang) {
@@ -58,5 +59,14 @@ if ( isset($_GET['q']) && !empty($_GET['q']) ) {
 			if ( ++$count >= $limit ) break;
 		}
 	}
+
+} else if ( !isset($_SESSION['first']) ) {
+
+	$random_keys = array_rand($data, $limit);
+	foreach ($random_keys as $code) {
+		echo $code . '=' . $data[$code] . "\n";
+	}
+
+	//$_SESSION['first'] = true;
 
 }
