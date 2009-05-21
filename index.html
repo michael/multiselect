@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="js/ui.multiselect.js"></script>
 	<script type="text/javascript">
 		$(function(){
-			$.localise('ui-multiselect', {language: 'fr', path: 'js/locale/'});
+			$.localise('ui.multiselect', {/*language: 'es',/* */ path: 'js/locale/'});
 
 			// local
 			$("#localCountries").multiselect();
@@ -62,6 +62,7 @@
       <li>Bleeding Edge Demo is always available <a href="http://michael.github.com/multiselect">here</a> (thanks to Github Pages)</li>
     </ul><br/>
 
+	<div id="debug">***</div>
     <form action="index.html">
 		<dl>
 			<dt>Multiselect with local content :</dt>
@@ -170,6 +171,7 @@
 				  <option value="UZB">Uzbekistan</option>
 				  <option value="VAT">Vatican City</option>
 				  <option value="VNM">Vietnam</option>
+
 				</select>
 			</dd>
 			<dt>Multiselect with remote content :</dt>
