@@ -31,7 +31,6 @@ session_start();
 define('DEFAULT_LIMIT', 50);
 
 
-//unset($_SESSION['data']);
 if ( !isset($_SESSION['data']) ) {
 	$buffer = file_get_contents('data.txt');
 	$data = array();
@@ -51,7 +50,6 @@ $limit = isset($_GET['limit']) && !empty($_GET['limit']) ? $_GET['limit'] : DEFA
 
 if ( isset($_GET['q']) && !empty($_GET['q']) ) {
 
-
 	$count = 0;
 	foreach ($data as $code => $lang) {
 		if ( false !== stripos($lang, $_GET['q']) ) {
@@ -60,13 +58,14 @@ if ( isset($_GET['q']) && !empty($_GET['q']) ) {
 		}
 	}
 
-} else if ( !isset($_SESSION['first']) ) {
+} else {
 
-	$random_keys = array_rand($data, $limit);
-	foreach ($random_keys as $code) {
-		echo $code . '=' . $data[$code] . "\n";
+	if ( !isset($_SESSION['default_indexes']) ) {
+		$_SESSION['default_indexes'] = array_rand($data, $limit);
 	}
 
-	//$_SESSION['first'] = true;
+	foreach ($_SESSION['default_indexes'] as $code) {
+		echo $code . '=' . $data[$code] . "\n";
+	}
 
 }

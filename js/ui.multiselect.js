@@ -20,29 +20,21 @@
  * localization (http://plugins.jquery.com/project/localisation)
  * 
  * Todo:
- *  Make batch actions faster
- *  Implement dynamic insertion through remote calls
+ *  implement sortable that works with current implementation
+ *  add public getters/setters ('select', 'deselect', 'enabled', 'selectedValues', etc.)
  */
 
 (function($) {
 
-var DEBUG = true;
-
 $.widget("ui.multiselect", {
 	_init: function() {
-		if (DEBUG) {
-			this.element.attr('disabled', 'disabled');
-		} else {
-			this.element.hide();
-		}
-
+		this.element.hide();
 		this.id = this.element.attr("id");
 		this.busy = false;  // busy state
-		this.loaded = false;
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.selectedContainer = $('<div class="ui-widget-content list-container selected"></div>').appendTo(this.container);
 		this.availableContainer = $('<div class="ui-widget-content list-container available"></div>').appendTo(this.container);
-		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0'+$.ui.multiselect.locale.itemsCount+'</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
+		this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 '+$.ui.multiselect.locale.itemsCount+'</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
 		this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="busy">'+$.ui.multiselect.locale.busy+'</span><input type="text" class="search ui-widget-content ui-corner-all"/><a href="#" class="add-all">'+$.ui.multiselect.locale.addAll+'</a></div>').appendTo(this.availableContainer);
 		this.selectedList = $('<ul class="list selected connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.selectedContainer);
 		this.availableList = $('<ul class="list available connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
@@ -58,27 +50,28 @@ $.widget("ui.multiselect", {
 			this.options.hide = 'hide';
 		}
 		
-		// make selection draggable/droppable
-		this.container.find("ul.available").droppable({
-			accept: '.ui-multiselect ul.selected li.ui-element',
-			hoverClass: 'ui-state-highlight',
-			drop: function(event, ui) {
-				that._setSelected(ui.draggable, false);
-			}
-		});
+		// make selection draggable/droppable or sortable if sortable is "manual"
 		//if ('manual' == this.options.sortable) {
-		// TODO implement this
+		// TODO implement this (sortables and draggables/droppables do not match well together with this implementation)
+		// this.container.find('ul.availabe').sortable();
 		//	this.container.find('ul.selected').sortable();
 		//} else {
-		this.container.find("ul.selected").droppable({
-			accept: '.ui-multiselect ul.available li.ui-element',
-			hoverClass: 'ui-state-highlight',
-			drop: function(event, ui) {
-				that._setSelected(ui.draggable, true);
-			}
-		});
+			this.container.find("ul.available").droppable({
+				accept: '.ui-multiselect ul.selected li.ui-element',
+				hoverClass: 'ui-state-highlight',
+				drop: function(event, ui) {
+					that._setSelected(ui.draggable, false);
+				}
+			});
+			this.container.find("ul.selected").droppable({
+				accept: '.ui-multiselect ul.available li.ui-element',
+				hoverClass: 'ui-state-highlight',
+				drop: function(event, ui) {
+					that._setSelected(ui.draggable, true);
+				}
+			});
 		//}
-		// normalize...
+		// normalize to a boolean value 'auto' | true == true, 'manual' | false == false
 		this.options.sortable = ('auto' == this.options.sortable) || (true == this.options.sortable);
 		
 		// set up livesearch
@@ -86,10 +79,9 @@ $.widget("ui.multiselect", {
 			this._registerSearchEvents(this.availableContainer.find('input.search'));
 		} else {
 			this.availableContainer.find('input.search').hide();
-			// no search? we are fully loaded
-			this.loaded = true;
 		}
-		this.availableContainer.find('.busy').hide();
+		// make sure that we're not busy yet
+		this._setBusy(false);
 		
 		// batch actions
 		this.container.find(".remove-all").bind('click.multiselect', function() {
@@ -197,16 +189,15 @@ $.widget("ui.multiselect", {
 				}
 				that._setBusy(false);
 			} catch (e) {
-				// try again later (let the browser cool down first), fail after many attempts
-				setTimeout(function() { 
-					if ( _addNodeRetry++ < 10 ) {
-						_addNode(); 
-					} else {
-						alert("There was a problem trying to add the item : \n\n\t" + node.text() + " (" + node.data('optionLink').val() + ")\n\n"
-							 + "The operation was aborted.");
-						that._setBusy(false);
-					}
-				}, 1);
+				// if this problem did not occur too many times already
+				if ( _addNodeRetry++ < 10 ) {
+					// try again later (let the browser cool down first)
+					setTimeout(function() { _addNode(); }, 1);
+				} else {
+					alert("There was a problem trying to add the item : \n\n\t[" + node.data('optionLink').val() + "] => " + node.text() + "\n\n"
+						 + "The operation was aborted.");
+					that._setBusy(false);
+				}
 			}
 		};
 		_addNode();
@@ -226,7 +217,7 @@ $.widget("ui.multiselect", {
 		return node;
 	},
 	// clones an item with 
-	// didn't find a smarter away around this (m
+	// didn't find a smarter away around this (michael)
 	// now using cache to speed up the process (yr)
 	_cloneWithData: function(clonee, cacheName) {
 		var that = this;
@@ -254,6 +245,7 @@ $.widget("ui.multiselect", {
 		return clone;
 	},
 	_batchSelect: function(elements, state) {
+		var wasBusy = this.busy;
 		this._setBusy(true);
 
 		var that = this;
@@ -280,7 +272,7 @@ $.widget("ui.multiselect", {
 			$.extend(that.options, _backup);
 
 			that._updateCount();
-			that._setBusy(false);
+			that._setBusy(wasBusy);
 		}, 10);
 	},
 	// find the best successor the given item in the specified list
@@ -324,7 +316,11 @@ $.widget("ui.multiselect", {
 	},
 	_setSelected: function(item, selected) {
 		var that = this;
-		item.data('optionLink').attr('selected', selected);
+		try {
+			item.data('optionLink').attr('selected', selected);
+		} catch (e) {
+			/* HACK! ignore IE complaints */
+		}	
 		var otherItem;		
 
 		if (selected) {
@@ -347,7 +343,6 @@ $.widget("ui.multiselect", {
 			}
 		}
 		
-
 		return otherItem;
 	},
 	_setBusy: function(state) {
@@ -356,6 +351,7 @@ $.widget("ui.multiselect", {
 	
 		this.container.find("a.remove-all, a.add-all")[state ? 'hide' : 'show']();
 		if (state) {
+			// backup focus state
 			input.data('hasFocus', document.activeElement == input[0]).hide();
 			busy.show();
 		} else {
@@ -430,7 +426,7 @@ $.widget("ui.multiselect", {
 				appendTo: that.container,
 				containment: that.container,
 				revert: 'invalid'
-	    });
+			});
 		});
 	},
 	_registerRemoveEvents: function(elements) {
@@ -451,7 +447,7 @@ $.widget("ui.multiselect", {
 				appendTo: that.container,
 				containment: that.container,
 				revert: 'invalid'
-	    });
+			});
 		});
  	},
 	_registerSearchEvents: function(input) {
@@ -464,7 +460,7 @@ $.widget("ui.multiselect", {
 			if (that.busy) return;
 
 			var value = input.val();
-			if ((value != previousValue) || (true == forceUpdate)) {
+			if ((value != previousValue) || (forceUpdate)) {
 				that._setBusy(true);
 
 				if (searchUrl) {
@@ -507,6 +503,8 @@ $.widget("ui.multiselect", {
 					timer = setTimeout(function() { _searchNow(); }, delay);
 			}
 		});
+		// initiate search filter now
+		_searchNow(true);
 	}
 });
 		
