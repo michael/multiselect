@@ -20,7 +20,9 @@
  *               Ex: limit=20   will not return more than 20 results even
  *                              if more matches
  *
- * Note : if the q argument is empty, nothing will be returned
+ * Note : if the q argument is empty, a randomized cherry pick array will
+ *        be returned of size limit. The same random array is returned for
+ *        the entire session.
  *
  * @author Yanick Rochon (yanick[dot]rochon[at]gmail[dot]com)
  * @created 2009-05-18 7:26:39 GMT -5:00
@@ -29,7 +31,6 @@ session_start();
 
 // the default limit if the parameter is not specified
 define('DEFAULT_LIMIT', 50);
-
 
 if ( !isset($_SESSION['data']) ) {
 	$buffer = file_get_contents('data.txt');

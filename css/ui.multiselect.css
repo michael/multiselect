@@ -24,9 +24,9 @@
  
 .ui-multiselect .add-all { float: right; padding: 7px; white-space: nowrap; }
 .ui-multiselect .remove-all { float: right; padding: 7px; white-space: nowrap; }
-.ui-multiselect .count { float: left; padding: 7px; }
+.ui-multiselect .count { cursor: default; float: left; padding: 7px; }
 .ui-multiselect .search { float: left; padding: 1px; opacity: 0.7; margin: 4px; height: 14px; }
 .ui-multiselect .busy { left: 0px; float: left; padding: 7px 7px 7px 25px; z-index: 1; background: url(images/loading.gif) 4px 50% no-repeat; }
  
-.ui-multiselect li a.action { position: absolute; right: 0px; top: 2px; padding-right: 2px; }
+.ui-multiselect li a.action { position: absolute; border: none; right: 0px; top: 1px; padding-right: 2px; }
  

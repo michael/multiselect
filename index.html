@@ -13,13 +13,13 @@
 	<script type="text/javascript" src="js/ui.multiselect.js"></script>
 	<script type="text/javascript">
 		$(function(){
-			$.localise('ui.multiselect', {/*language: 'es',/* */ path: 'js/locale/'});
+			$.localise('ui.multiselect', {language: 'es',/* */ path: 'js/locale/'});
 
 			// local
-			$("#localCountries").multiselect();
+			$("#countries").multiselect();
 
 			// remote
-			$("#remoteCountries").multiselect({
+			$("#languages").multiselect({
 				remoteUrl: "ajax.php"
 			});
 
@@ -54,6 +54,10 @@
       The widget is styleable using <a href="http://jqueryui.com/themeroller/" title="jQuery UI Themeroller">Themeroller</a>.
       It works in an <em>unobtrusive</em> fashion, by just turning html multiple select inputs into a sexier equivalent. There's no extra markup needed.
     </p>
+
+	<p>
+		Localisation support is done through the localization plugin available <a href="http://plugins.jquery.com/project/localisation">here</a>.
+	</p>
     
     <ul>
       <li>For installation instructions please have a look at the corresponding <a href="http://www.quasipartikel.at/2009/05/10/jqueryui-multiselect/">blogpost</a></li>
@@ -62,11 +66,13 @@
       <li>Bleeding Edge Demo is always available <a href="http://michael.github.com/multiselect">here</a> (thanks to Github Pages)</li>
     </ul><br/>
 
+	<div id="debug">---</div>
+
     <form action="index.html" style="border: none;">
 		<dl>
 			<dt>Multiselect with local content :</dt>
 			<dd>
-				<select id="localCountries" class="multiselect" multiple="multiple" name="localCountries[]">
+				<select id="countries" class="multiselect" multiple="multiple" name="countries[]">
 				  <option value="AFG">Afghanistan</option>
 				  <option value="ALB">Albania</option>
 				  <option value="DZA">Algeria</option>
@@ -175,7 +181,7 @@
 			</dd>
 			<dt>Multiselect with remote content :</dt>
 			<dd>
-				<select id="remoteCountries" class="multiselect" multiple="multiple" name="remoteCountries[]">
+				<select id="languages" class="multiselect" multiple="multiple" name="languages[]">
 				</select>
 			</dd>
 		</dl>
@@ -189,9 +195,11 @@
     <h2>Features</h2>
     <ul>
       <li>Search within available options, if there are a lots of them</li>
+		<li>Remote search if too many items, with custom parameters to control remote script</li>
       <li>Displaying counts of selected and available items</li>
       <li>Select All / Deselect All Buttons</li>
       <li>Dragging items from the available list to the selected list directly</li>
+		<li>List sorting and node events callbacks for more customizations</li>
     </ul>
     
     <h2>Contributors</h2>
