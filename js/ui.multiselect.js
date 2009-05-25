@@ -282,10 +282,9 @@ $.widget("ui.multiselect", {
     })
     .keyup(function() {
       that._filter.apply(this, [that.availableList]);
-    }).keyup()
-    .parents('form').submit(function(){
-      return false;
     });
+				
+		// TODO: somehow prevent the form from being submitted when ENTER is pressed in the searchfield
 	}
 });
 		
