@@ -15,6 +15,7 @@
  *	 ui.core.js
  *	 ui.draggable.js
  *  ui.droppable.js
+ *  jquery.blockUI (http://github.com/malsup/blockui/)
  *
  * Optional:
  *  localization (http://plugins.jquery.com/project/localisation)
@@ -25,7 +26,6 @@
  * 
  * Todo:
  *  implement sortable that works with current implementation
- *  add public getters/setters ('select', 'deselect', 'enabled', 'selectedValues', etc.)
  */
 
 if (!String.prototype.template) {
@@ -107,14 +107,8 @@ $.widget("ui.multiselect", {
 		this._setBusy(false);
 		
 		// batch actions
-		this.container.find(".remove-all").bind('click.multiselect', function() {
-			that._batchSelect(that.selectedList.children('li.ui-element:visible'), false);	
-			return false;
-		});
-		this.container.find(".add-all").bind('click.multiselect', function() {
-			that._batchSelect(that.availableList.children('li.ui-element:visible'), true);	
-			return false;
-		});
+		this.container.find(".remove-all").bind('click.multiselect', function() { that.selectNone(); return false; });
+		this.container.find(".add-all").bind('click.multiselect', function() { that.selectAll(); return false; });
 
 		// set dimensions
 		this.container.width(this.element.width()+1);
@@ -129,36 +123,101 @@ $.widget("ui.multiselect", {
 		// init lists
 		this._populateLists(this.element.find('option'));
 	},
+
+	/**************************************
+    *  Public
+    **************************************/
+
 	destroy: function() {
 		this.container.remove();
 		this.element.show();
 
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
-	// insert new <option> and _populate
-	// @return int   the number of options added
-	_addOptions: function(data) {
-		var wasBusy = this.busy;
-		this._setBusy(true);
-
-		// format data
-		if (data = this.options.formatData(data)) {
-			var option, elements = [];
-			for (var key in data) {
-				// check if the option does not exist already
-				if (this.element.find('option[value="'+key+'"]').size()==0) {
-					elements.push( $('<option value="'+key+'"/>').text(data[key].value).appendTo(this.element)[0] );
-				}
+	// get all selected values in an array
+	selectedValues: function() {
+		var values = this.selectedList.children('li.ui-element:visible').map(function(i,item) {
+			return $(item).data('optionLink').val();
+		});
+		return Array.prototype.slice.apply(values);
+	},
+	// get/set enable state
+	enabled: function(state) {
+		if (undefined !== state) {
+			if (state) {
+				this.container.unblock();
+				this.element.removeAttr('disabled');
+			} else {
+				this.container.block({message:null,overlayCSS:{backgroundColor:'#fff',opacity:0.3,cursor:'default'}});
+				this.element.attr('disabled', true);
 			}
 		}
-
-		if (elements.length>0) {
-			this._populateLists($(elements));
-		}
-
-		this._setBusy(wasBusy);
-		return elements.length;
+		return !this.element.attr('disabled');
 	},
+	selectAll: function() {
+		if (this.enabled()) {
+			this._batchSelect(this.availableList.children('li.ui-element:visible'), true);
+		}
+	},
+	selectNone: function() {
+		if (this.enabled()) {
+			this._batchSelect(this.selectedList.children('li.ui-element:visible'), false);
+		}
+	},
+	select: function(item) {
+		if (this.enabled()) {
+			var available = this._findItem(item, this.availableList);
+			if ( available ) {
+				this._setSelected(available, true);
+			}
+		}
+	},
+	deselect: function(item) {
+		if (this.enabled()) {
+			var selected = this._findItem(item, this.selectedList);
+			if ( selected ) {
+				this._setSelected(selected, false);
+			}
+		}
+	},
+	search: function(query) {
+		if (this.enabled()) {
+			this.availableActions.children('input.search').val(query).trigger('keydown.multiselect');
+		}
+	},
+	// insert new <option> and _populate
+	// @return int   the number of options added
+	addOptions: function(data) {
+		if (this.enabled()) {
+			var wasBusy = this.busy;
+			this._setBusy(true);
+
+			// format data
+			if (data = this.options.formatData(data)) {
+				var option, elements = [];
+				for (var key in data) {
+					// check if the option does not exist already
+					if (this.element.find('option[value="'+key+'"]').size()==0) {
+						elements.push( $('<option value="'+key+'"/>').text(data[key].value).appendTo(this.element)[0] );
+					}
+				}
+			}
+
+			if (elements.length>0) {
+				this._populateLists($(elements));
+			}
+
+			this._setBusy(wasBusy);
+			return elements.length;
+		} else {
+			return false;
+		}
+	},
+
+	/**************************************
+    *  Private
+    **************************************/
+
 	_populateLists: function(options) {
 		this._setBusy(true);
 	
@@ -227,6 +286,26 @@ $.widget("ui.multiselect", {
 		var node = $('<li class="ui-state-default ui-element"><span class="ui-icon"/>'+option.text()+'<a href="#" class="ui-state-default action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
 		node.data('optionLink', option);
 		return node;
+	},
+	// used by select and deselect
+	// TODO should the items be matched by their text (visible content) or key value?
+	_findItem: function(item, list) {
+		var found = null;
+		if (parseInt(item) == item) {
+			found = list.children('li.ui-element:visible:eq('+item+')');
+		} else {
+			list.children('li.ui-element:visible').each(function(i,el) {
+				el = $(el);
+				if (el.data('optionLink').val().toLowerCase() === item.toLowerCase()) {
+					found = el;
+				}
+			});
+		}
+		if ( (null !== found) && (1 === found.size()) ) {
+			return found;
+		} else {
+			return false;
+		}
 	},
 	// clones an item with 
 	// didn't find a smarter away around this (michael)
@@ -484,7 +563,7 @@ $.widget("ui.multiselect", {
 							searchUrl,
 							$.extend(params, {q:escape(value)}),
 							function(data) { 
-								that._addOptions(data);
+								that.addOptions(data);
 								that._filter(that.availableList.children('li.ui-element')); 
 								that._setBusy(false); 
 							}
@@ -535,6 +614,7 @@ $.widget("ui.multiselect", {
 });
 		
 $.extend($.ui.multiselect, {
+	getter: 'selectedValues enabled',
 	defaults: {
 		// sortable
 		sortable: 'auto',
