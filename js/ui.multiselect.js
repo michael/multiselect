@@ -272,19 +272,21 @@ $.widget("ui.multiselect", {
 		});
  	},
 	_registerSearchEvents: function(input) {
-    var that = this;
-  
-    input.focus(function() {
-      $(this).addClass('ui-state-active');
-    })
-    .blur(function() {
-      $(this).removeClass('ui-state-active');
-    })
-    .keyup(function() {
-      that._filter.apply(this, [that.availableList]);
-    });
-				
-		// TODO: somehow prevent the form from being submitted when ENTER is pressed in the searchfield
+		var that = this;
+
+		input.focus(function() {
+			$(this).addClass('ui-state-active');
+		})
+		.blur(function() {
+			$(this).removeClass('ui-state-active');
+		})
+		.keypress(function(e) {
+			if (e.keyCode == 13)
+				return false;
+		})
+		.keyup(function() {
+			that._filter.apply(this, [that.availableList]);
+		});
 	}
 });
 		
