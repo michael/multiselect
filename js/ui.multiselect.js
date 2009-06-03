@@ -80,7 +80,7 @@ $.widget("ui.multiselect", {
 			},
 			available: {
 				sortable: ('both' == this.options.sortable || 'right' == this.options.sortable),
-				droppable: ('both' == this.options.droppable || 'left' == this.options.droppable)
+				droppable: ('both' == this.options.droppable || 'right' == this.options.droppable)
 			}
 		};
 		this._prepareLists('selected', 'available', dragOptions);
@@ -223,6 +223,40 @@ $.widget("ui.multiselect", {
 			.data('multiselect.draggable', !opts[side].sortable && (opts[otherSide].sortable || opts[otherSide].droppable) );
 		
 		if (opts[side].sortable) {
+			var _applyReceivedItem = function(item, helper) {
+				var optionLink = helper.data('multiselect.optionLink');
+				if (optionLink) {
+					if (itemSelected) {
+						optionLink.attr('selected','selected');
+					} else {
+						optionLink.removeAttr('selected');
+					}
+
+					var cachedItem = otherList.data('multiselect.cache')[optionLink.val()];
+					if (cachedItem) {
+						// if the other list is sortable, the item was permanently moved here, cleanup
+						if (opts[otherSide].sortable) {
+							delete otherList.data('multiselect.cache')[optionLink.val()];
+						} else if (itemSelected) {
+							cachedItem.addClass('shadowed').hide();
+						} else if ('available' == side) {
+							cachedItem.hide();
+						}
+					}
+					// refresh linked options
+					item.data('multiselect.optionLink', optionLink);
+
+					list.data('multiselect.cache')[optionLink.val()] = item;
+					that._applyItemState(item, itemSelected);
+					// pulse
+					//item.effect("pulsate", { times: 1, mode: 'show' }, 400);  // pulsate twice???
+					item.fadeTo('fast', 0.3, function() { $(this).fadeTo('fast', 1); });
+
+				}
+
+				that._updateCount();
+			};
+
 			list.sortable({
 				appendTo: this.container,
 				connectWith: otherList,
@@ -231,33 +265,31 @@ $.widget("ui.multiselect", {
 				items: 'li.ui-element',
 				revert: true,
 				beforeStop: function(event, ui) {
-					var optionLink = ui.helper.data('multiselect.optionLink');
-					$('#debug').text('stopped ' + (ui.item.parent() == list) );
-					// if optionLink is defined, then we've received a draggable
-					if (optionLink) {
-						// if an item already exists
-						if (list.data('multiselect.cache')[optionLink.val()]) {
-							ui.item.remove();
-						} else {
-							// prepare item...
-							ui.item.hide().data('multiselect.optionLink', optionLink);
-							// cache item
-							list.data('multiselect.cache')[optionLink.val()] = ui.item;
-							that._applyItemState(ui.item, itemSelected);
-						}
-
-						// find counter-part item
-						if (otherList.data('multiselect.cache')[optionLink.val()]) {
-							that._setSelected(that.availableList.data('multiselect.cache')[optionLink.val()], itemSelected);
-						}
+					if (!opts[otherSide].sortable) {
+						// we received an external item from a non-sortable
+						_applyReceivedItem(ui.item, ui.helper);
+					}
+				},
+				receive: function(event, ui) {
+					if (opts[otherSide].sortable) {
+						// we received an external item from a sortable
+						_applyReceivedItem(ui.item, ui.item);
 					}
 				}
 			});
-		} else if (opts[side].sortable) {
+		} else if (opts[side].droppable) {
 			list.droppable({
-				accept: '.ui-multiselect ul.' + otherSide + ' li.ui-element',
+				accept: '.ui-multiselect ul.'+otherSide+' li.ui-element',
 				hoverClass: 'ui-state-highlight',
+				revert: true,
 				drop: function(event, ui) {
+					if (opts[otherSide].sortable) {
+						ui.helper.hide();
+						setTimeout(function() { 
+							ui.draggable.remove(); 
+							otherList.sortable('refreshPositions'); 
+						}, 10);
+					}
 					that._setSelected(ui.draggable, itemSelected);
 				}
 			});
@@ -320,8 +352,8 @@ $.widget("ui.multiselect", {
 		// defer until system is not busy
 		if (this.busy) setTimeout(function() { that._updateCount(); }, 100);
 		// count only visible <li> (less .ui-helper-hidden*)
-		var count = this.selectedList.children('li:not(.ui-helper-hidden-accessible):visible').size();
-		var total = this.availableList.children('li:not(.ui-helper-hidden-accessible, .shadowed)').size() + count;
+		var count = this.selectedList.children('li:not(.ui-helper-hidden-accessible,.ui-sortable-placeholder):visible').size();
+		var total = this.availableList.children('li:not(.ui-helper-hidden-accessible,.ui-sortable-placeholder,.shadowed)').size() + count;
 		this.selectedContainer.find('span.count')
 			.text($.ui.multiselect.locale.itemsCount.template(count))
 			.attr('title', $.ui.multiselect.locale.itemsTotal.template(total));
@@ -455,12 +487,18 @@ $.widget("ui.multiselect", {
 	},
 	_setSelected: function(item, selected) {
 		var that = this;
-		try {
-			// FIXME see if item.data('multiselect.optionLink').removeAttr('selected') fix this issue (when selected == false)
-			item.data('multiselect.optionLink').attr('selected', selected);
-		} catch (e) {
-			/* HACK! ignore IE complaints */
-		}	
+		//try {
+		//	// FIXME see if item.data('multiselect.optionLink').removeAttr('selected') fix this issue (when selected == false)
+		//	item.data('multiselect.optionLink').attr('selected', selected);
+		//} catch (e) {
+		//	/* HACK! ignore IE complaints */
+		//}	
+		if (selected) {
+			item.data('multiselect.optionLink').attr('selected','selected');
+		} else {
+			item.data('multiselect.optionLink').removeAttr('selected');
+		}
+
 		var otherItem;		
 
 		if (selected) {
@@ -479,6 +517,7 @@ $.widget("ui.multiselect", {
 		if (!this.busy) {
 			if (this.options.animated) {
 				// pulse
+				//otherItem.effect("pulsate", { times: 1, mode: 'show' }, 400);  // pulsate twice???
 				otherItem.fadeTo('fast', 0.3, function() { $(this).fadeTo('fast', 1); });
 			}
 		}
@@ -584,6 +623,7 @@ $.widget("ui.multiselect", {
 			// make draggable
 			elements.each(function() {
 				$(this).parent().draggable({
+					connectToSortable: that.availableList,
 					helper: _dragHelper,
 					appendTo: that.container,
 					containment: that.container,
@@ -673,8 +713,13 @@ $.widget("ui.multiselect", {
 var _dragHelper = function(event, ui) {
 	var item = $(event.target);
 	var clone = item.clone().width(item.width());
-	clone.find('a').remove();
-	clone.data('multiselect.optionLink', item.data('multiselect.optionLink'));
+	clone
+		.data('multiselect.optionLink', item.data('multiselect.optionLink'))
+		.data('multiselect.list', item.parent() )
+		// node cleanup
+		.find('a').remove()
+	;
+	$('#debug').text('Helper: start drag from list ' + item.parent()[0].className );
 	return clone;
 };
 
@@ -728,8 +773,8 @@ $.extend($.ui.multiselect, {
 	getter: 'selectedValues enabled isBusy',
 	defaults: {
 		// sortable and droppable
-		sortable: 'left',
-		droppable: 'none',
+		sortable: 'both',
+		droppable: 'both',
 		// searchable
 		searchable: true,
 		searchDelay: 400,
