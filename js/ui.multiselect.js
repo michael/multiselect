@@ -25,7 +25,7 @@
  *  and allow flexibility in the messages. Read the documentation for more details. 
  * 
  * Todo:
- *  implement sortable that works with current implementation
+ *  tests and optimizations
  */
 
 if (!String.prototype.template) {
@@ -51,7 +51,7 @@ if (!String.prototype.template) {
 
 $.widget("ui.multiselect", {
 	_init: function() {
-		this.element.hide();
+		//this.element.hide();
 		this.busy = false;  // busy state
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.selectedContainer = $('<div class="ui-widget-content list-container selected"></div>').appendTo(this.container);
@@ -223,9 +223,9 @@ $.widget("ui.multiselect", {
 			.data('multiselect.draggable', !opts[side].sortable && (opts[otherSide].sortable || opts[otherSide].droppable) );
 		
 		if (opts[side].sortable) {
-			var _applyReceivedItem = function(item, helper) {
-				var optionLink = helper.data('multiselect.optionLink');
-				if (optionLink) {
+			var _applyReceivedItem = function(item, helper, transfered) {
+				var optionLink = helper.data('multiselect.optionLink') || item.data('multiselect.optionLink');
+				if (transfered && optionLink) {
 					if (itemSelected) {
 						optionLink.attr('selected','selected');
 					} else {
@@ -250,11 +250,32 @@ $.widget("ui.multiselect", {
 					that._applyItemState(item, itemSelected);
 					// pulse
 					//item.effect("pulsate", { times: 1, mode: 'show' }, 400);  // pulsate twice???
-					item.fadeTo('fast', 0.3, function() { $(this).fadeTo('fast', 1); });
+					item.fadeTo('fast', 0.3, function() {
+						$(this).fadeTo('fast', 1, function() { 
+							if (!itemSelected) that._filter(item); 
+						});
+					});
+				} 
 
+				if (transfered) {
+					that._updateCount();
 				}
-
-				that._updateCount();
+				if (transfered || itemSelected) {
+					if (itemSelected) setTimeout(function() { _refreshOptionIndex(item);	}, 100);
+				}
+			};
+			var _refreshOptionIndex = function(item) {
+				var optionLink = item.data('multiselect.optionLink');
+				if (optionLink) {
+					var prevItem = item.prev('li:not(.ui-helper-hidden-accessible,.ui-sortable-placeholder):visible');
+					var prevOptionLink = prevItem.data('multiselect.optionLink');
+				
+					if (prevOptionLink) {
+						optionLink.insertAfter(prevOptionLink);
+					} else {
+						optionLink.prependTo(optionLink.parent());
+					}
+				}
 			};
 
 			list.sortable({
@@ -265,16 +286,12 @@ $.widget("ui.multiselect", {
 				items: 'li.ui-element',
 				revert: true,
 				beforeStop: function(event, ui) {
-					if (!opts[otherSide].sortable) {
-						// we received an external item from a non-sortable
-						_applyReceivedItem(ui.item, ui.helper);
-					}
+					// transfer is true if the other list is NOT sortable
+					_applyReceivedItem(ui.item, ui.helper, !opts[otherSide].sortable);
 				},
 				receive: function(event, ui) {
-					if (opts[otherSide].sortable) {
-						// we received an external item from a sortable
-						_applyReceivedItem(ui.item, ui.item);
-					}
+					// transfer is trus if the other list is sortable
+					_applyReceivedItem(ui.item, ui.item, opts[otherSide].sortable);
 				}
 			});
 		} else if (opts[side].droppable) {
@@ -284,8 +301,11 @@ $.widget("ui.multiselect", {
 				revert: true,
 				drop: function(event, ui) {
 					if (opts[otherSide].sortable) {
+						// hide helper so we won't see it revert
 						ui.helper.hide();
-						setTimeout(function() { 
+						setTimeout(function() {
+							// fix the sortable by removing the element that has been dragged from it
+							// since it is cached, we can retrieve it later on anyway 
 							ui.draggable.remove(); 
 							otherList.sortable('refreshPositions'); 
 						}, 10);
@@ -573,7 +593,7 @@ $.widget("ui.multiselect", {
 			});
 		}
 
-		return elements.not('.filtered, .shadowed').show().end().filter('.filtered, .shadowed').hide();
+		return elements.not('.filtered, .shadowed').show().end().filter('.filtered, .shadowed').hide().end();
 	},
 	_registerHoverEvents: function(elements) {
 		elements
