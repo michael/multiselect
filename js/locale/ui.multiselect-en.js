@@ -7,8 +7,9 @@
 $.extend($.ui.multiselect.locale, {
 	addAll:'Add all',
 	removeAll:'Remove all',
-	itemsCount:'#{0} items selected',
-	itemsTotal:'#{0} items total',
+	itemsCount:'#{count} items selected',
+	itemsTotal:'#{count} items total',
 	busy:'please wait...',
-	errorInsertNode:"There was a problem trying to add the item:\n\n\t[#{0}] => #{1}\n\nThe operation was aborted."
+	errorInsertNode:"There was a problem trying to add the item:\n\n\t[#{key}] => #{value}\n\nThe operation was aborted.",
+	errorReadonly:"The option #{option} is readonly."
 });

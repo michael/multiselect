@@ -7,8 +7,9 @@
 $.extend($.ui.multiselect.locale, {
 	addAll:'Agregar todos',
 	removeAll:'Remover todos',
-	itemsCount:'#{0} Objetos seleccionados',
-	itemsTotal:'#{0} Objetos total',
+	itemsCount:'#{count} Objetos seleccionados',
+	itemsTotal:'#{count} Objetos total',
 	busy:'por favor, espere...'
-	errorInsertNode:"Ha habido un problema al tratar de agregar el tema:\n\n\t[#{0}] => #{1}\n\nLa operación fue abortada."
+	errorInsertNode:"Ha habido un problema al tratar de agregar el tema:\n\n\t[#{key}] => #{value}\n\nLa operación fue abortada.",
+	errorReadonly:"La opción #{option} es de sólo lectura."
 });

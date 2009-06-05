@@ -1,13 +1,54 @@
-
+/**
+ * Multiselect demo page initialisation script
+ *
+ * @author Yanick Rochon
+ */
 $(function() {
 
-	// Tab 1 : local
-	$('#checkLocalEnabled').click(function(event) {
-		$('#countries').multiselect('enabled', event.target.checked);
-		alert( "Element is " + ($('#countries').multiselect('enabled') ? 'enabled' : 'disabled') );
+	$('#tabs, #optionTabs').tabs();
+
+	$('.externalControls').hide();
+	$('.externalControlsToggle').click(function() {
+		$($(this).attr('href')).toggle();
+		return false;
 	});
-	$('#checkLocalValues').click(function() {
-		var values = $('#countries').multiselect('selectedValues');
+
+	$('#submitResult').dialog({
+		autoOpen: false,
+		closeOnEscape: true,
+		draggable: true,
+		resizable: false,
+		width: $('#submitFrame').width(),
+		height: $('#submitFrame').height() + 65,
+		title: "Form submit result"				
+	});
+	$('#debug').dialog({
+		autoOpen: false,   // true for displaying debug information (if any)
+		closeOnEscape: true,
+		draggable: true,
+		resizable: true,
+		title: 'Debug',
+		position: ['left','top']
+	});
+
+	$('form').submit(function() {
+		if (!$('#submitResult').dialog('isOpen')) $('#submitResult').dialog('open');
+	});
+
+
+	// Multiselect controls
+	var getVisibleMultiselect = function() {
+		return $('#tabs-' + (parseInt($('#tabs').tabs('option', 'selected')) + 1)).find('select.multiselect[multiple]');
+	};
+
+	$('#ec_toggleEnabled').click(function(event) {
+		var multiselect = getVisibleMultiselect();
+		multiselect.multiselect('enabled', !multiselect.multiselect('enabled'));
+		alert( "Element is " + (multiselect.multiselect('enabled') ? 'enabled' : 'disabled') );
+	});
+	$('#ec_checkValues').click(function() {
+		var multiselect = getVisibleMultiselect();
+		var values = multiselect.multiselect('selectedValues');
 		if (0 === values.length) {
 			alert("There is currently no selected value");
 		} else if (1 === values.length) {
@@ -16,20 +57,20 @@ $(function() {
 			alert( "There are currently " + values.length + " selected values:\n\n" + values.join(', '));
 		}
 	});
-	$('#buttonLocalSelectAll').click(function() {
-		$('#countries').multiselect('selectAll');
+	$('#ec_buttonSelectAll').click(function() {
+		getVisibleMultiselect().multiselect('selectAll');
 	});
-	$('#buttonLocalSelectNone').click(function() {
-		$('#countries').multiselect('selectNone');
+	$('#ec_buttonSelectNone').click(function() {
+		getVisibleMultiselect().multiselect('selectNone');
 	});
-	$('#buttonLocalSearch').click(function() {
-		$('#countries').multiselect('search', $('#inputLocalSearch').val() );
+	$('#ec_buttonSearch').click(function() {
+		getVisibleMultiselect().multiselect('search', $('#ec_inputSearch').val() );
 	});
-	$('#buttonLocalItemAdd').click(function() {
-		$('#countries').multiselect('select', $('#inputLocalItem').val() );
+	$('#ec_buttonItemAdd').click(function() {
+		getVisibleMultiselect().multiselect('select', $('#ec_inputItem').val() );
 	});
-	$('#buttonLocalItemRemove').click(function() {
-		$('#countries').multiselect('deselect', $('#inputLocalItem').val() );
+	$('#ec_buttonItemRemove').click(function() {
+		getVisibleMultiselect().multiselect('deselect', $('#ec_inputItem').val() );
 	});
 
 
