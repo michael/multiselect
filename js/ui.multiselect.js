@@ -29,7 +29,7 @@
 
 $.widget("ui.multiselect", {
 	_init: function() {
-		//this.element.hide();
+		this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.count = 0; // number of currently selected options
