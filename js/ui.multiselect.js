@@ -29,7 +29,7 @@
 
 $.widget("ui.multiselect", {
 	_init: function() {
-		this.element.hide();
+		//this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
 		this.count = 0; // number of currently selected options
@@ -72,10 +72,10 @@ $.widget("ui.multiselect", {
 					});
 				},
 				receive: function(event, ui) {
+					ui.item.data('optionLink').attr('selected', true);
 					// increment count
 					that.count += 1;
 					that._updateCount();
-
 					// workaround, because there's no way to reference 
 					// the new element, see http://dev.jqueryui.com/ticket/4303
 					that.selectedList.children('.ui-draggable').each(function() {
