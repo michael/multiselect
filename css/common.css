@@ -31,9 +31,9 @@ em							{font-style: italic;}
 h1,h2,h3,h4,h5,h6		{font-weight:bold;}
 h1							{font-size:197%; margin:30px 0; color: #4f6f6c;}
 h2							{font-size:174%; margin:20px 0; color:#4f6f6c;}
-h3							{font-size:152%; margin:10px 0;}
-h4							{font-size:129%; margin:10px 0;}
-pre 						{background:#eee; margin:0 0 20px; padding:20px; border:1px solid #ccc; font-size:100%; overflow:auto;}
+h3							{font-size:152%; margin:10px 0; color:#4f6f6c;}
+h4							{font-size:129%; margin:10px 0; color:#4f6f6c;}
+pre 						{background:#eee; margin:0 0 20px; padding:20px; border:1px solid #ccc; font-size:100%; width:510px; overflow:auto;}
 code						{font-size:100%; margin:0; padding:0;}
 ul, ol					{margin:10px 0 10px 25px;}
 ol li						{margin:0 0 10px;}
@@ -44,7 +44,7 @@ div#wrapper 			{background:#fff; width:640px; margin:0 auto; padding:20px; borde
 div#header				{position:relative; border-bottom:1px dotted; margin:0 0 10px; padding:0 0 10px;}
 div#header p			{margin:0; padding:0;}
 div#header h1			{margin:0; padding:0;}
-ul#nav					{position:absolute; top:0; right:0; list-style:none; margin:0; padding:0;}
+ul#nav					{position:absolute; top:0px; right:10px; list-style:none; margin:0; padding:0;}
 ul#nav li				{display:inline; padding:0 0 0 5px;}
 ul#nav li a				{}
 div#content				{}
@@ -63,12 +63,14 @@ dd 						{margin-left: 20px; padding-bottom: 20px;}
 
 form						{margin: 0; padding: 0;}
 
-.externalControlsWrapper					{margin-top: 10px; margin-bottom: 20px;}
-.externalControlsWrapper .optionWrapper {vertical-align: middle; overflow: auto; width: 100%; margin-bottom: 10px;}
-.externalControlsWrapper a					{font-size: 90%;}
-.externalControls								{margin-top: 10px; border: 1px solid #bbb; background: #eee;}
-.externalControls .optionLabel			{width: 160px;}
-.externalControls .optionInput			{float: right; width: 280px;}
+.externalControlsWrapper			{margin-top: 10px; margin-bottom: 20px;}
+.externalControls a					{font-size: 90%;}
+.externalControls						{margin-top: 10px; border: 1px solid #bbb; background: #eee; height: 230px;}
+.externalControls .optionWrapper {vertical-align: middle; overflow: auto; width: 100%; margin-bottom: 10px; float: left; clear: left;}
+.externalControls .optionLabel			{width: 200px; padding-bottom: 5px;}
+.externalControls .optionInput			{float: right; width: 220px;}
+.externalControls .optionInput .text	{font-size: 14px; width: 150px;}
+.externalControls .optionInput .button	{font-size: 14px; padding: 0px; margin: 0px;}
 
 /* JQuery API CSS */
 
@@ -93,14 +95,15 @@ ul.methods-list a:hover {
 .UIAPIPlugin #theming h2 { color: #FFFFFF; margin: 0 0 20px 0 !important; padding: 5px 10px !important; background: #0F67A1; font-size: 15px; -moz-border-radius: 2px; text-transform: none; }
 
 ul.options-list,
-ul.options-list li.option { margin: 0; padding: 0; list-style-type: none; list-style-image: none; }
+ul.options-list li.option { margin: 20px 0 0 0; padding: 0; list-style-type: none; list-style-image: none; }
 ul.options-list { margin-left: 6px; }
 ul.options-list li.option { padding-bottom: 10px !important; }
 ul.options-list li.option dl,
 ul.options-list li.option dt,
 ul.options-list li.option dd { margin: 0; padding: 0; }
 ul.options-list li.option .option-header { width: 100%; float: left; background-color: #E2EDF4 !important; }
-ul.options-list li.option .option-header .option-name { margin: 0 !important; padding: 0 !important; width: 35%; float: left; background-color: #E2EDF4 !important; }
+ul.options-list li.option .option-header .option-name { line-height: 0.2; margin: 0 !important; padding: 0 !important; width: 35%; float: left; background-color: #E2EDF4 !important; }
+ul.options-list li.option .option-header .option-name a { vertical-align: 90%; font-size: 16px; margin: 10px 0 0px 10px; }
 ul.options-list li.option .option-header dt,
 ul.options-list li.option .option-header dd { margin: 0; padding: 0; float: left; width: 18%; }
 ul.options-list li.option .option-header dt.option-type-label { display: none; }
@@ -113,14 +116,15 @@ ul.options-list li.option .option-examples-list dd { margin-left: 10px; }
 ul.options-list li.option .option-examples-list dd pre code { background: none; }
 
 ul.events-list,
-ul.events-list li.events { margin: 0; padding: 0; list-style-type: none; list-style-image: none; }
+ul.events-list li.events { margin: 20px 0 0 0; padding: 0; list-style-type: none; list-style-image: none; }
 ul.events-list { margin-left: 6px; }
 ul.events-list li.event { padding-bottom: 10px !important; }
 ul.events-list li.event dl,
 ul.events-list li.event dt,
 ul.events-list li.event dd { margin: 0; padding: 0; }
 ul.events-list li.event .event-header { width: 100%; float: left; background-color: #E2EDF4 !important; }
-ul.events-list li.event .event-header .event-name { margin: 0 !important; padding: 0 !important; width: 25%; float: left; background-color: #E2EDF4 !important; }
+ul.events-list li.event .event-header .event-name { line-height: 0.2; margin: 0 !important; padding: 0 !important; width: 35%; float: left; background-color: #E2EDF4 !important; }
+ul.events-list li.event .event-header .event-name a { vertical-align: 90%; font-size: 16px; margin: 10px 0 0px 10px; }
 ul.events-list li.event .event-header dt,
 ul.events-list li.event .event-header dd { margin: 0; padding: 0; float: left; width: 23%; }
 ul.events-list li.event .event-header dt.event-type-label { width: 10%; }

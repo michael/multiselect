@@ -23,7 +23,12 @@
 				remoteUrl: "ajax.php"
 			});
 
-			$('#switcher').themeswitcher();
+			// only if the function is available...
+			if ($.fn.themeswitcher) {
+				$('#switcher')
+					.before('<h4>Use the themeroller to dynamically change look and feel</h4>')
+					.themeswitcher();
+			}
 		});
 	</script>
 	<script type="text/javascript" src="js/page.js"></script>
@@ -45,9 +50,9 @@
 		</p> 
 		
 		<ul id="nav">
-      <li><a href="http://quasipartikel.at/2009/05/10/jqueryui-multiselect/">Blogpost</a></li>
-      <li><a href="http://github.com/yanickrochon/multiselect">Source</a></li>
-      <li><a href="http://github.com/yanickrochon/multiselect/issues">Bugs</a></li>
+		   <li><a href="http://quasipartikel.at/2009/05/10/jqueryui-multiselect/">Blogpost</a></li>
+		   <li><a href="http://github.com/yanickrochon/multiselect">Source</a></li>
+		   <li><a href="http://github.com/yanickrochon/multiselect/issues">Bugs</a></li>
 		</ul>
 	</div> 
 	
@@ -185,7 +190,6 @@
 								<option value="UZB">Uzbekistan</option>
 								<option value="VAT">Vatican City</option>
 								<option value="VNM">Vietnam</option>
-								
 							</select>
 						</dd>
 						<dt>
@@ -225,44 +229,47 @@
 				 
 		<div class="externalControlsWrapper">
 			<a class="externalControlsToggle" href="#localExtCtrl">Toggle external controls</a>
-			<div id="localExtCtrl" class="externalControls">
-				<dt>Controls :</dt>
-				<dd>
-					<div class="optionWrapper">
-						<div class="optionInput">
-							<input id="ec_toggleEnabled" type="button" value="Toggle enabled/disabled" />
+			<span><em>(IE6 doesn't render well this layout.... and I don't care)</em></span>
+			<div id="localExtCtrl">
+				<div class="externalControls ui-widget-content">
+					<dt>Controls :</dt>
+					<dd>
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_toggleEnabled" type="button" class="button" value="Toggle enabled/disabled" />
+							</div>
+							<div class="optionLabel" style="padding:0px; margin:0px;">Enable multiselect :</div>
 						</div>
-						<div class="optionLabel">Enable multiselect : </div>
-					</div>
-					<div class="optionWrapper">
-						<div class="optionInput">
-							<input id="ec_checkValues" type="button" value="Get selected values" />
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_checkValues" type="button" class="button" value="Get selected values" />
+							</div>
+							<div class="optionLabel">Get selected values :</div>
 						</div>
-						<div class="optionLabel">Get selected values : </div>
-					</div>
-					<div class="optionWrapper">
-						<div class="optionInput">
-							<input id="ec_buttonSelectAll" type="button" value="Select All" />
-							<input id="ec_buttonSelectNone" type="button" value="Select none" />
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_buttonSelectAll" type="button" class="button" value="Select All" />
+								<input id="ec_buttonSelectNone" type="button" class="button" value="Select none" />
+							</div>
+							<div class="optionLabel">Select values :</div>
 						</div>
-						<div class="optionLabel">Select values : </div>
-					</div>
-					<div class="optionWrapper">
-						<div class="optionInput">
-							<input id="ec_inputItem" type="input" value="" /><br />
-							<input id="ec_buttonItemAdd" type="button" value="Select" />
-							<input id="ec_buttonItemRemove" type="button" value="Deselect" />
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_inputItem" type="input" class="text" value="" /><br />
+								<input id="ec_buttonItemAdd" type="button" class="button" value="Select" />
+								<input id="ec_buttonItemRemove" type="button" class="button" value="Deselect" />
+							</div>
+							<div class="optionLabel">Manual selection :<br /><em style="font-size: 11px;">(Match option values, not text)</em></div>
 						</div>
-						<div class="optionLabel">Manual selection : </div>
-					</div>
-					<div class="optionWrapper">
-						<div class="optionInput">
-							<input id="ec_inputSearch" type="input" value="" />
-							<input id="ec_buttonSearch" type="button" value="Search" />
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_inputSearch" type="input" class="text" value="" />
+								<input id="ec_buttonSearch" type="button" class="button" value="Search" />
+							</div>
+							<div class="optionLabel">Search :</div>
 						</div>
-						<div class="optionLabel">Search : </div>
-					</div>
-				</dd>
+					</dd>
+				</div>
 			</div>
 		</div>
 
@@ -275,7 +282,7 @@
 			<li>Remote search if too many items, with custom parameters to control remote script</li>
 			<li>Displaying counts of selected and available items</li>
 			<li>Select All / Deselect All Buttons</li>
-			<li>Dragging items from the available list to the selected list directly</li>
+			<li>Drag 'n drop support using droppables and/or sortables independantly</li>
 			<li>List sorting and node events callbacks for more customizations</li>
 		</ul>
 
@@ -287,8 +294,11 @@
 		
 		<h2>Known bugs</h2>
 		<ul>
-			<li>The draggables may act weird in IE. This bug is under inverstigation.</li>
-			<li>...</li>
+			<li><del>The draggables may act weird in IE. This bug is under inverstigation.</del></li>
+			<li>Drag'n'drop may not select items properly. The problem is more apparaent when the containers are sortable.</li>
+			<li>Talking about sortables, they are not sorted correctly 90% of the time....</li>
+			<li>The widget may trigger an error inside JQuery itself. This bug is under inverstigation.</li>
+         <li><a href="http://github.com/yanickrochon/multiselect/issues">...more?</a></li>
 		</ul>
 	 
 		<h2>Contributors</h2>
@@ -314,6 +324,7 @@
 
 
 		<div id="optionTabs-1">
+
 			<ul class="options-list">
 		   
 				<!-- option - animated -->
@@ -964,7 +975,114 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 
 		<div id="optionTabs-3">
 
-			<p>Coming Soon...</p>
+			<ul class="events-list">
+		   
+				<!-- event - deselected -->
+				<li class="event" id="event-deselected">
+					<div class="event-header">
+						<h3 class="event-name"><a href="#event-deselected">deselected</a></h3>
+
+						<dl>
+							<dt class="event-type-label">Type:</dt>
+							<dd class="event-type">multiselectdeselected</dd>
+						</dl>
+					</div>
+
+					<div class="event-description">
+						<p>This event is triggered whenever the an option has been deselected. The event <code>deselected</code> is triggered for every option deselected.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Supply a feedback function to handle the <code>deselected</code> events as an init option.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ deselected: function(event, option) { alert($(options).val() + " has been deselected"); } });</code></pre>
+							</dd>
+							<dt>
+								Bind to the <code>deselected</code> event of type <code>multiselectdeselected</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').bind('multiselectdeselected', function(event, options) {
+  ...
+});</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<!-- event - messages -->
+				<li class="event" id="event-messages">
+					<div class="event-header">
+						<h3 class="event-name"><a href="#event-messages">messages</a></h3>
+
+						<dl>
+							<dt class="event-type-label">Type:</dt>
+							<dd class="event-type">multiselectmessages</dd>
+						</dl>
+					</div>
+
+					<div class="event-description">
+						<p>This event is triggered whenever the widget needs to send some feedback to the user. The handler will receive any pre-formatted (localized) messages as second argument.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Supply a feedback function to handle the <code>messages</code> supplied by the widget as an init option.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ messages: function(event, msg) { alert(msg); } });</code></pre>
+							</dd>
+							<dt>
+								Bind to the <code>messages</code> event of type <code>multiselectmessages</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').bind('multiselectmessages', function(event, ui) {
+  ...
+});</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<!-- event - selected -->
+				<li class="event" id="event-selected">
+					<div class="event-header">
+						<h3 class="event-name"><a href="#event-selected">selected</a></h3>
+
+						<dl>
+							<dt class="event-type-label">Type:</dt>
+							<dd class="event-type">multiselectselected</dd>
+						</dl>
+					</div>
+
+					<div class="event-description">
+						<p>This event is triggered whenever the an option has been selected. The event <code>selected</code> is triggered for every option selected.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Supply a feedback function to handle the <code>selected</code> events as an init option.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ selected: function(event, option) { alert($(options).val() + " has been selected"); } });</code></pre>
+							</dd>
+							<dt>
+								Bind to the <code>selected</code> event of type <code>multiselectselected</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').bind('multiselectselected', function(event, options) {
+  ...
+});</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+			</ul>			
 
 		</div>
 

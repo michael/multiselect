@@ -109,7 +109,7 @@ $.widget("ui.multiselect", {
 	},
 	isSelected: function(item) {
 		if (this.enabled()) {
-			return this._findItem(item, this.selectedList);
+			return !!this._findItem(item, this.selectedList);
 		} else {
 			return null;
 		}
@@ -215,12 +215,15 @@ $.widget("ui.multiselect", {
 			case 'droppable':
 			case 'sortable':
 				// readonly options
-				alert($.tmpl($.ui.multiselect.locale.errorReadonly, {option: key}));
+				this._messages($.ui.multiselect.locale.errorReadonly, {option: key});
 			default:
 				// default behavior
 				this.options[key] = value;
 				break;
 		}
+	},
+	_messages: function(msg, params) {
+		this._trigger('error', null, $.tmpl(msg, params));
 	},
 
 	_refreshDividerLocation: function() {
@@ -240,94 +243,76 @@ $.widget("ui.multiselect", {
 			.data('multiselect.draggable', !opts[side].sortable && (opts[otherSide].sortable || opts[otherSide].droppable) );
 		
 		if (opts[side].sortable) {
-			var _applyReceivedItem = function(item, helper, transfered) {
-				var optionLink = helper.data('multiselect.optionLink') || item.data('multiselect.optionLink');
-				if (transfered && optionLink) {
-					if (itemSelected) {
-						optionLink.attr('selected','selected');
-					} else {
-						optionLink.removeAttr('selected');
-					}
-
-					var cachedItem = otherList.data('multiselect.cache')[optionLink.val()];
-					if (cachedItem) {
-						// if the other list is sortable, the item was permanently moved here, cleanup
-						if (opts[otherSide].sortable) {
-							delete otherList.data('multiselect.cache')[optionLink.val()];
-						} else if (itemSelected) {
-							cachedItem.addClass('shadowed').hide();
-						} else if ('available' == side) {
-							cachedItem.hide();
-						}
-					}
-					// refresh linked options
-					item.data('multiselect.optionLink', optionLink);
-
-					list.data('multiselect.cache')[optionLink.val()] = item;
-					that._applyItemState(item, itemSelected);
-					// pulse
-					//item.effect("pulsate", { times: 1, mode: 'show' }, 400);  // pulsate twice???
-					item.fadeTo('fast', 0.3, function() {
-						$(this).fadeTo('fast', 1, function() { 
-							if (!itemSelected) that._filter(item); 
-						});
-					});
-				} 
-
-				if (transfered) {
-					that._updateCount();
-				}
-				if (transfered || itemSelected) {
-					if (itemSelected) setTimeout(function() { _refreshOptionIndex(item);	}, 100);
-				}
-			};
-			var _refreshOptionIndex = function(item) {
-				var optionLink = item.data('multiselect.optionLink');
-				if (optionLink) {
-					var prevItem = item.prev('li:not(.ui-helper-hidden-accessible,.ui-sortable-placeholder):visible');
-					var prevOptionLink = prevItem.data('multiselect.optionLink');
-				
-					if (prevOptionLink) {
-						optionLink.insertAfter(prevOptionLink);
-					} else {
-						optionLink.prependTo(optionLink.parent());
-					}
-				}
-			};
-
 			list.sortable({
 				appendTo: this.container,
 				connectWith: otherList,
 				containment: this.container,
 				helper: listDragHelper,
 				items: 'li.ui-element',
-				revert: true,
-				beforeStop: function(event, ui) {
-					// transfer is true if the other list is NOT sortable
-					_applyReceivedItem(ui.item, ui.helper, !opts[otherSide].sortable);
-				},
+				revert: !(opts[otherSide].sortable || opts[otherSide].droppable),
 				receive: function(event, ui) {
-					// transfer is trus if the other list is sortable
-					_applyReceivedItem(ui.item, ui.item, opts[otherSide].sortable);
+					that._trigger('debug', null, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected );
+	
+					// we received an element from a sortable to another sortable...
+					if (opts[side].sortable && opts[otherSide].sortable) {
+						var optionLink = ui.item.data('multiselect.optionLink');
+
+						that._applyItemState(ui.item.hide(), itemSelected);
+
+						// if the cache already contain an element, remove it
+						if (otherList.data('multiselect.cache')[optionLink.val()]) {
+							delete otherList.data('multiselect.cache')[optionLink.val()];
+						}
+
+						ui.item.hide();
+						// hack our way for this one...
+						ui.item = that._cloneWithData(ui.item, otherSide, false);
+					}
+
+					setTimeout(function() { 
+						
+						that._setSelected(ui.item, itemSelected);
+					}, 10);
+				},
+				stop: function(event, ui) {
+					that._trigger('debug', null, "Stop : " + (ui.item.parent()[0] == otherList[0]) );
+
+					that._moveOptionNode(ui.item);
 				}
 			});
-		} else if (opts[side].droppable) {
+		}
+
+		if (opts[side].droppable || opts[otherSide].sortable || opts[otherSide].droppable) {
+			//alert( side + " is droppable ");
 			list.droppable({
-				accept: '.ui-multiselect ul.'+otherSide+' li.ui-element',
+				accept: '.ui-multiselect li.ui-element',
 				hoverClass: 'ui-state-highlight',
-				revert: true,
+				revert: !(opts[otherSide].sortable || opts[otherSide].droppable),
+				greedy: true,
 				drop: function(event, ui) {
-					if (opts[otherSide].sortable) {
-						// hide helper so we won't see it revert
-						ui.helper.hide();
-						setTimeout(function() {
-							// fix the sortable by removing the element that has been dragged from it
-							// since it is cached, we can retrieve it later on anyway 
-							ui.draggable.remove(); 
-							otherList.sortable('refreshPositions'); 
+					that._trigger('debug', null, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className );
+					//alert( "drop " + itemSelected );
+					// if no optionLink is defined, it was dragged in
+					if (!ui.draggable.data('multiselect.optionLink')) {
+						var optionLink = ui.helper.data('multiselect.optionLink');
+						ui.draggable.data('multiselect.optionLink', optionLink);
+
+						// if the cache already contain an element, remove it
+						if (list.data('multiselect.cache')[optionLink.val()]) {
+							delete list.data('multiselect.cache')[optionLink.val()];
+						}
+						list.data('multiselect.cache')[optionLink.val()] = ui.draggable;
+
+						that._applyItemState(ui.draggable, itemSelected);
+
+					// received an item from a sortable to a droppable
+					} else if (!opts[side].sortable) {
+						setTimeout(function() { 
+							ui.draggable.hide(); 
+							that._setSelected(ui.draggable, itemSelected); 
 						}, 10);
 					}
-					that._setSelected(ui.draggable, itemSelected);
+
 				}
 			});
 		}
@@ -357,6 +342,7 @@ $.widget("ui.multiselect", {
 	},
 	_insertToList: function(node, list) {
 		var that = this;
+		var wasBusy = this.busy;
 		this._setBusy(true);
 		// the browsers don't like batch node insertion...
 		var _addNodeRetry = 0;
@@ -368,17 +354,19 @@ $.widget("ui.multiselect", {
 				} else {
 					list.append(node);
 				}
+				if (list === that.selectedList) that._moveOptionNode(node);
+
 				// callback after node insertion
 				if ('function' == typeof that.options.nodeInserted) that.options.nodeInserted(node);
-				that._setBusy(false);
+				that._setBusy(wasBusy);
 			} catch (e) {
 				// if this problem did not occur too many times already
 				if ( _addNodeRetry++ < 10 ) {
 					// try again later (let the browser cool down first)
 					setTimeout(function() { _addNode(); }, 1);
 				} else {
-					alert($.tmpl($.ui.multiselect.locale.errorInsertNode, {key:node.data('multiselect.optionLink').val(), value:node.text()}));
-					that._setBusy(false);
+					that._messages($.ui.multiselect.locale.errorInsertNode, {key:node.data('multiselect.optionLink').val(), value:node.text()});
+					that._setBusy(wasBusy);
 				}
 			}
 		};
@@ -400,6 +388,22 @@ $.widget("ui.multiselect", {
 		var node = $('<li class="ui-state-default ui-element"><span class="ui-icon"/>'+option.text()+'<a href="#" class="ui-state-default action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
 		node.data('multiselect.optionLink', option);
 		return node;
+	},
+	_moveOptionNode: function(item) {
+		// call this async to let the item be placed correctly
+		setTimeout( function() {
+			var optionLink = item.data('multiselect.optionLink');
+			if (optionLink) {
+				var prevItem = item.prev('li:not(.ui-helper-hidden-accessible,.ui-sortable-placeholder):visible');
+				var prevOptionLink = prevItem.size() ? prevItem.data('multiselect.optionLink') : null;
+		
+				if (prevOptionLink) {
+					optionLink.insertAfter(prevOptionLink);
+				} else {
+					optionLink.prependTo(optionLink.parent());
+				}
+			}
+		}, 100);
 	},
 	// used by select and deselect
 	// TODO should the items be matched by their text (visible content) or key value?
@@ -524,22 +528,25 @@ $.widget("ui.multiselect", {
 	},
 	_setSelected: function(item, selected) {
 		var that = this, otherItem;
-		if (selected) {
-			item.data('multiselect.optionLink').attr('selected','selected');
-		} else {
-			item.data('multiselect.optionLink').removeAttr('selected');
-		}
+		var optionLink = item.data('multiselect.optionLink');
 
 		if (selected) {
+			// already selected
+			if (optionLink.attr('selected')) return;
+			optionLink.attr('selected','selected');
+
 			// retrieve associatd or cloned item
 			otherItem = this._cloneWithData(item, 'selected', true).hide();
 			otherItem[this.options.show](this.options.animated);
 			item.addClass('shadowed')[this.options.hide](this.options.animated, function() { that._updateCount(); });
 		} else {
+			// already deselected
+			if (!optionLink.attr('selected')) return;
+			optionLink.removeAttr('selected');
+
 			// retrieve associated or clone the item
-			otherItem = this._cloneWithData(item, 'available', true).hide();
+			otherItem = this._cloneWithData(item, 'available', true).hide().removeClass('shadowed');
 			item[this.options.hide](this.options.animated, function() { that._updateCount() });
-			otherItem.removeClass('shadowed');
 			if (!otherItem.is('.filtered')) otherItem[this.options.show](this.options.animated);
 		}
 
@@ -550,6 +557,9 @@ $.widget("ui.multiselect", {
 				otherItem.fadeTo('fast', 0.3, function() { $(this).fadeTo('fast', 1); });
 			}
 		}
+
+		// fire selection event
+		this._trigger(selected ? 'selected' : 'deselected', null, optionLink);
 		
 		return otherItem;
 	},
@@ -693,7 +703,7 @@ $.widget("ui.multiselect", {
 							}
 						);
 					} catch (e) {
-						alert(e.message);   // error message template ??
+						that._messages(e.message);   // error message template ??
 						that._setBusy(false); 
 					}
 				} else {
@@ -758,7 +768,6 @@ var _dragHelper = function(event, ui) {
 		// node ui cleanup
 		.find('a').remove()
 	;
-	$('#debug').text('Helper: start drag from list ' + item.parent()[0].className );
 	return clone;
 };
 
@@ -786,7 +795,7 @@ var defaultDataParser = function(data) {
 			}
 		}
 	} else {
-		alert($.tmpl($.ui.multiselect.locale.errorDataFormat));
+		this._messages($.ui.multiselect.locale.errorDataFormat);
 		data = false;
 	}
 	return data;

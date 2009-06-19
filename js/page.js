@@ -5,14 +5,40 @@
  */
 $(function() {
 
+	// bind error messages
+	$('#countries, #languages').bind('multiselectmessages multiselectdebug', function(event, msg) {
+		$('#debug').append('<div>' + msg + '</div>');
+	})
+	.bind('multiselectselected', function(event, option) {
+		$('#debug').append('<div>The option ' + $(option).text() + " was selected</div>");
+	})
+	.bind('multiselectdeselected', function(event, option) {
+		$('#debug').append('<div>The option ' + $(option).text() + " was deselected</div>");
+	})
+	;
+
 	$('#tabs, #optionTabs').tabs();
 
-	$('.externalControls').hide();
 	$('.externalControlsToggle').click(function() {
-		$($(this).attr('href')).toggle();
+		var el = $($(this).attr('href'));
+		if (el.dialog('isOpen')) {
+			el.dialog('close');
+		} else {
+			el.dialog('open');
+		}
 		return false;
 	});
 
+	$('#localExtCtrl').dialog({
+		autoOpen: false,
+		closeOnEscape: true,
+		draggable: true,
+		resizable: false,
+		width: 480,
+		height: 300,
+		title: 'External controls'
+	})
+		.find('input:text').addClass('ui-widget-content');
 	$('#submitResult').dialog({
 		autoOpen: false,
 		closeOnEscape: true,
@@ -23,12 +49,19 @@ $(function() {
 		title: "Form submit result"				
 	});
 	$('#debug').dialog({
-		autoOpen: false,   // true for displaying debug information (if any)
+		autoOpen: true,   // true for displaying debug information (if any)
 		closeOnEscape: true,
 		draggable: true,
 		resizable: true,
+		position: [10, 140],
+		width: 300,
+		height: 300,
 		title: 'Debug',
-		position: ['left','top']
+		buttons: {
+			'Clear': function() {
+				$('#debug').html('');
+			}
+		}
 	});
 
 	$('form').submit(function() {
