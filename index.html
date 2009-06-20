@@ -1,23 +1,37 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
 <head> 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
 	<title>jQuery UI Multiselect</title> 
 	<link rel="stylesheet" href="css/common.css" type="text/css" />
-	<link type="text/css" rel="stylesheet" href="http://jqueryui.com/themes/base/ui.all.css" />
+	<link type="text/css" rel="stylesheet" href="css/themes/smoothness/jquery-ui-1.7.1.custom.css" />
 	<link type="text/css" href="css/ui.multiselect.css" rel="stylesheet" />
 	<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.7.1.custom.min.js"></script>
 	<script type="text/javascript" src="js/plugins/localisation/jquery.localisation-min.js"></script>
-	<script type="text/javascript" src="js/plugins/scrollTo/jquery.scrollTo-min.js"></script>
+	<script type="text/javascript" src="js/plugins/tmpl/jquery.tmpl.1.1.1.js"></script>
+	<script type="text/javascript" src="js/plugins/blockUI/jquery.blockUI.js"></script>
 	<script type="text/javascript" src="js/ui.multiselect.js"></script>
 	<script type="text/javascript">
 		$(function(){
-			$.localise('ui-multiselect', {/*language: 'en',*/ path: 'js/locale/'});
-			$(".multiselect").multiselect();
-			$('#switcher').themeswitcher();
+			$.localise('ui.multiselect', {/*language: 'es',/* */ path: 'js/locale/'});
+
+			// local
+			$("#countries").multiselect();
+			// remote
+			$("#languages").multiselect({
+				remoteUrl: "ajax.php"
+			});
+
+			// only if the function is available...
+			if ($.fn.themeswitcher) {
+				$('#switcher')
+					.before('<h4>Use the themeroller to dynamically change look and feel</h4>')
+					.themeswitcher();
+			}
 		});
 	</script>
+	<script type="text/javascript" src="js/page.js"></script>
 </head>
 <body>
 <a href="http://github.com/michael/multiselect"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
@@ -26,7 +40,7 @@
 	<div id="header"> 
 		<h1>jQuery UI Multiselect</h1> 
 		<p>
-		  Another attempt of a <em>sortable</em>, <em>searchable</em> multiple select widget
+			Another attempt of a <em>sortable</em>, <em>searchable</em> multiple select widget.<br />
 		</p> 
 		
 		<ul id="nav">
@@ -38,157 +52,1057 @@
 	</div>
 	
 	<div id="content">
-    <p>
-      It depends on <a href="http://jquery.com/">jQuery 1.3</a> and <a href="http://jqueryui.com/">jQuery UI 1.7</a>.
-      The widget is styleable using <a href="http://jqueryui.com/themeroller/" title="jQuery UI Themeroller">Themeroller</a>.
-      It works in an <em>unobtrusive</em> fashion, by just turning html multiple select inputs into a sexier equivalent. There's no extra markup needed.
-    </p>
-    
-    <ul>
-      <li>For installation instructions please have a look at the corresponding <a href="http://www.quasipartikel.at/2009/05/10/jqueryui-multiselect/">blogpost</a></li>
-      <li>Source code is available at <a href="http://github.com/michael/multiselect/" title="Social Coding">Github</a></li>
-      <li>In case you are looking for the original version, it has been moved <a href="http://quasipartikel.at/multiselect_original/">here</a></li>
-      <li>Bleeding Edge Demo is always available <a href="http://michael.github.com/multiselect">here</a> (thanks to Github Pages)</li>
-    </ul><br/>
+		<p>
+			It depends on <a href="http://jquery.com/">jQuery 1.3</a> and <a href="http://jqueryui.com/">jQuery UI 1.7</a>.
+			The widget is styleable using <a href="http://jqueryui.com/themeroller/" title="jQuery UI Themeroller">Themeroller</a>.
+			It works in an <em>unobtrusive</em> fashion, by just turning html multiple select inputs into a sexier equivalent. There's no extra markup needed.
+		</p>
 
-    <form action="index.html">
-      <select id="countries" class="multiselect" multiple="multiple" name="countries[]">
-        <option value="AFG">Afghanistan</option>
-        <option value="ALB">Albania</option>
-        <option value="DZA">Algeria</option>
-        <option value="AND">Andorra</option>
-        <option value="ARG">Argentina</option>
-        <option value="ARM">Armenia</option>
-        <option value="ABW">Aruba</option>
-        <option value="AUS">Australia</option>
-        <option value="AUT" selected="selected">Austria</option>
+		<p>
+			Localisation support is done through the localization plugin available <a href="http://plugins.jquery.com/project/localisation">here</a>.
+		</p>
 
-        <option value="AZE">Azerbaijan</option>
-        <option value="BGD">Bangladesh</option>
-        <option value="BLR">Belarus</option>
-        <option value="BEL">Belgium</option>
-        <option value="BIH">Bosnia and Herzegovina</option>
-        <option value="BRA">Brazil</option>
-        <option value="BRN">Brunei</option>
-        <option value="BGR">Bulgaria</option>
-        <option value="CAN">Canada</option>
+		<p>
+			The widget is available under the MIT license.
+			<a id="license" href="#license">View license information</a>
+			<div id="license-info" style="display: none;">
+				<iframe id="frameLicense" name="frameLicense" src="MIT-LICENSE.txt" style="width:100%; height:100%;"></iframe>
+			</div>
+		</p>
 
-        <option value="CHN">China</option>
-        <option value="COL">Colombia</option>
-        <option value="HRV">Croatia</option>
-        <option value="CYP">Cyprus</option>
-        <option value="CZE">Czech Republic</option>
-        <option value="DNK">Denmark</option>
-        <option value="EGY">Egypt</option>
-        <option value="EST">Estonia</option>
-        <option value="FIN">Finland</option>
+		<ul>
+			<li>For installation instructions please have a look at the corresponding <a href="http://www.quasipartikel.at/2009/05/10/jqueryui-multiselect/">blogpost</a></li>
+			<li>Source code is available at <a href="http://github.com/yanickrochon/multiselect/" title="Social Coding">Github</a></li>
+			<li>In case you are looking for the original version, it has been moved <a href="http://quasipartikel.at/multiselect_original/">here</a></li>
+			<li>Official Bleeding Edge Demo is always available <a href="http://michael.github.com/multiselect">here</a> (thanks to Github Pages)</li>
+		</ul><br/>
 
-        <option value="FRA">France</option>
-        <option value="GEO">Georgia</option>
-        <option value="DEU" selected="selected">Germany</option>
-        <option value="GRC">Greece</option>
-        <option value="HKG">Hong Kong</option>
-        <option value="HUN">Hungary</option>
-        <option value="ISL">Iceland</option>
-        <option value="IND">India</option>
-        <option value="IDN">Indonesia</option>
+		<h2>Demo</h2>
+		<div id="tabs">
+			<ul>
+				<li><a href="#tabs-1">Local</a></li>
+				<li><a href="#tabs-2">Remote</a></li>
+			</ul>
+			<div id="tabs-1">
+				<form action="form.php" target="submitFrame" style="border: none;">
+					<dl>
+						<dt>Multiselect with local content :</dt>
+						<dd>
+							<select id="countries" class="multiselect" multiple="multiple" name="countries[]">
+								<option value="AFG">Afghanistan</option>
+								<option value="ALB">Albania</option>
+								<option value="DZA">Algeria</option>
+								
+								<option value="AND">Andorra</option>
+								<option value="ARG">Argentina</option>
+								<option value="ARM">Armenia</option>
+								<option value="ABW">Aruba</option>
+								<option value="AUS">Australia</option>
+								<option value="AUT" selected="selected">Austria</option>
 
-        <option value="IRN">Iran</option>
-        <option value="IRL">Ireland</option>
-        <option value="ISR">Israel</option>
-        <option value="ITA">Italy</option>
-        <option value="JPN">Japan</option>
-        <option value="JOR">Jordan</option>
-        <option value="KAZ">Kazakhstan</option>
-        <option value="KWT">Kuwait</option>
-        <option value="KGZ">Kyrgyzstan</option>
+								<option value="AZE">Azerbaijan</option>
+								<option value="BGD">Bangladesh</option>
+								<option value="BLR">Belarus</option>
+								<option value="BEL">Belgium</option>
+								<option value="BIH">Bosnia and Herzegovina</option>
+								<option value="BRA">Brazil</option>
+								<option value="BRN">Brunei</option>
+								<option value="BGR">Bulgaria</option>
+								<option value="CAN">Canada</option>
 
-        <option value="LVA">Latvia</option>
-        <option value="LBN">Lebanon</option>
-        <option value="LIE">Liechtenstein</option>
-        <option value="LTU">Lithuania</option>
-        <option value="LUX">Luxembourg</option>
-        <option value="MAC">Macau</option>
-        <option value="MKD">Macedonia</option>
-        <option value="MYS">Malaysia</option>
-        <option value="MLT">Malta</option>
+								<option value="CHN">China</option>
+								<option value="COL">Colombia</option>
+								<option value="HRV">Croatia</option>
+								<option value="CYP">Cyprus</option>
+								<option value="CZE">Czech Republic</option>
+								<option value="DNK">Denmark</option>
+								<option value="EGY">Egypt</option>
+								<option value="EST">Estonia</option>
+								<option value="FIN">Finland</option>
 
-        <option value="MEX">Mexico</option>
-        <option value="MDA">Moldova</option>
-        <option value="MNG">Mongolia</option>
-        <option value="NLD" selected="selected">Netherlands</option>
-        <option value="NZL">New Zealand</option>
-        <option value="NGA">Nigeria</option>
-        <option value="NOR">Norway</option>
-        <option value="PER">Peru</option>
-        <option value="PHL">Philippines</option>
+								<option value="FRA">France</option>
+								<option value="GEO">Georgia</option>
+								<option value="DEU" selected="selected">Germany</option>
+								<option value="GRC">Greece</option>
+								<option value="HKG">Hong Kong</option>
+								<option value="HUN">Hungary</option>
+								<option value="ISL">Iceland</option>
+								<option value="IND">India</option>
+								<option value="IDN">Indonesia</option>
 
-        <option value="POL">Poland</option>
-        <option value="PRT">Portugal</option>
-        <option value="QAT">Qatar</option>
-        <option value="ROU">Romania</option>
-        <option value="RUS">Russia</option>
-        <option value="SMR">San Marino</option>
-        <option value="SAU">Saudi Arabia</option>
-        <option value="CSG">Serbia and Montenegro</option>
-        <option value="SGP">Singapore</option>
+								<option value="IRN">Iran</option>
+								<option value="IRL">Ireland</option>
+								<option value="ISR">Israel</option>
+								<option value="ITA">Italy</option>
+								<option value="JPN">Japan</option>
+								<option value="JOR">Jordan</option>
+								<option value="KAZ">Kazakhstan</option>
+								<option value="KWT">Kuwait</option>
+								<option value="KGZ">Kyrgyzstan</option>
 
-        <option value="SVK">Slovakia</option>
-        <option value="SVN">Slovenia</option>
-        <option value="ZAF">South Africa</option>
-        <option value="KOR">South Korea</option>
-        <option value="ESP">Spain</option>
-        <option value="LKA">Sri Lanka</option>
-        <option value="SWE">Sweden</option>
-        <option value="CHE">Switzerland</option>
-        <option value="SYR">Syria</option>
+								<option value="LVA">Latvia</option>
+								<option value="LBN">Lebanon</option>
+								<option value="LIE">Liechtenstein</option>
+								<option value="LTU">Lithuania</option>
+								<option value="LUX">Luxembourg</option>
+								<option value="MAC">Macau</option>
+								<option value="MKD">Macedonia</option>
+								<option value="MYS">Malaysia</option>
+								<option value="MLT">Malta</option>
 
-        <option value="TWN">Taiwan</option>
-        <option value="TJK">Tajikistan</option>
-        <option value="THA">Thailand</option>
-        <option value="TUR">Turkey</option>
-        <option value="TKM">Turkmenistan</option>
-        <option value="UKR">Ukraine</option>
-        <option value="ARE">United Arab Emirates</option>
-        <option value="GBR">United Kingdom</option>
-        <option value="USA" selected="selected">United States</option>
+								<option value="MEX">Mexico</option>
+								<option value="MDA">Moldova</option>
+								<option value="MNG">Mongolia</option>
+								<option value="NLD" selected="selected">Netherlands</option>
+								<option value="NZL">New Zealand</option>
+								<option value="NGA">Nigeria</option>
+								<option value="NOR">Norway</option>
+								<option value="PER">Peru</option>
+								<option value="PHL">Philippines</option>
 
-        <option value="UZB">Uzbekistan</option>
-        <option value="VAT">Vatican City</option>
-        <option value="VNM">Vietnam</option>
-      </select>
-      <br/>
-      <input type="submit" value="Submit Form"/>
-    </form>
-    
-    <script type="text/javascript"
-      src="http://jqueryui.com/themeroller/themeswitchertool/">
-    </script>
-    <div id="switcher"></div>
-    
-    <h2>Features</h2>
-    <ul>
-      <li>Search within available options, if there are a lots of them</li>
-      <li>Displaying counts of selected and available items</li>
-      <li>Select All / Deselect All Buttons</li>
-      <li>Dragging items from the available list to the selected list directly</li>
-    </ul>
-    
-    <h2>Contributors</h2>
-    <ul>
-      <li><a href="http://github.com/michael/multiselect/">Michael Aufreiter</a></li>
-      <li><a href="http://github.com/yanickrochon/multiselect">Yanick Rochon</a></li>
-    </ul>
-    </p>
-    <h2>Misc</h2>
-    <p>
-    There are no limitations. Do whatever you want with this plugin.
-    If you did some nice modifications, just let me know (via Github). I'd be happy to include them.
-    </p>
+								<option value="POL">Poland</option>
+								<option value="PRT">Portugal</option>
+								<option value="QAT">Qatar</option>
+								<option value="ROU">Romania</option>
+								<option value="RUS">Russia</option>
+								<option value="SMR">San Marino</option>
+								<option value="SAU">Saudi Arabia</option>
+								<option value="CSG">Serbia and Montenegro</option>
+								<option value="SGP">Singapore</option>
+
+								<option value="SVK">Slovakia</option>
+								<option value="SVN">Slovenia</option>
+								<option value="ZAF">South Africa</option>
+								<option value="KOR">South Korea</option>
+								<option value="ESP">Spain</option>
+								<option value="LKA">Sri Lanka</option>
+								<option value="SWE">Sweden</option>
+								<option value="CHE">Switzerland</option>
+								<option value="SYR">Syria</option>
+
+								<option value="TWN">Taiwan</option>
+								<option value="TJK">Tajikistan</option>
+								<option value="THA">Thailand</option>
+								<option value="TUR">Turkey</option>
+								<option value="TKM">Turkmenistan</option>
+								<option value="UKR">Ukraine</option>
+								<option value="ARE">United Arab Emirates</option>
+								<option value="GBR">United Kingdom</option>
+								<option value="USA" selected="selected">United States</option>
+
+								<option value="UZB">Uzbekistan</option>
+								<option value="VAT">Vatican City</option>
+								<option value="VNM">Vietnam</option>
+							</select>
+						</dd>
+						<dt>
+							Test submit <span style="font-size: smaller; font-style: italic; color: #777;">(will not reload the page)</span>
+						</dt>
+						<dd>
+							<input type="submit" id="localSubmit" name="localSubmit" value="Send selection" />
+						</dd>
+					</dl>
+				</form>
+
+			</div>
+			<div id="tabs-2">
+				<form action="form.php" target="submitFrame" style="border: none;">
+					<dl>
+						<dt>Multiselect with remote content :</dt>
+						<dd>
+							<select id="languages" class="multiselect" multiple="multiple" name="languages[]">
+							</select>
+						</dd>
+						<dt>
+							Test submit <span style="font-size: smaller; font-style: italic; color: #777;">(will not reload the page)</span>
+						</dt>
+						<dd>
+							<input type="submit" id="localSubmit" name="localSubmit" value="Send selection" />
+						</dd>
+					</dl>
+				</form>
+			</div>
+		</div>
+
+		<!-- Dialog contents -->
+		<div id="debug"></div>
+		<div id="submitResult">
+			<iframe id="submitFrame" name="submitFrame" src="form.php?reset"></iframe>
+		</div>
+				 
+		<div class="externalControlsWrapper">
+			<a class="externalControlsToggle" href="#localExtCtrl">Toggle external controls</a>
+			<span><em>(IE6 doesn't render well this layout.... and I don't care)</em></span>
+			<div id="localExtCtrl">
+				<div class="externalControls ui-widget-content">
+					<dt>Controls :</dt>
+					<dd>
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_toggleEnabled" type="button" class="button" value="Toggle enabled/disabled" />
+							</div>
+							<div class="optionLabel" style="padding:0px; margin:0px;">Enable multiselect :</div>
+						</div>
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_checkValues" type="button" class="button" value="Get selected values" />
+							</div>
+							<div class="optionLabel">Get selected values :</div>
+						</div>
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_buttonSelectAll" type="button" class="button" value="Select All" />
+								<input id="ec_buttonSelectNone" type="button" class="button" value="Select none" />
+							</div>
+							<div class="optionLabel">Select values :</div>
+						</div>
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_inputItem" type="input" class="text" value="" /><br />
+								<input id="ec_buttonItemAdd" type="button" class="button" value="Select" />
+								<input id="ec_buttonItemRemove" type="button" class="button" value="Deselect" />
+							</div>
+							<div class="optionLabel">Manual selection :<br /><em style="font-size: 11px;">(Match option values, not text)</em></div>
+						</div>
+						<div class="optionWrapper">
+							<div class="optionInput">
+								<input id="ec_inputSearch" type="input" class="text" value="" />
+								<input id="ec_buttonSearch" type="button" class="button" value="Search" />
+							</div>
+							<div class="optionLabel">Search :</div>
+						</div>
+					</dd>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript" src="http://jqueryui.com/themeroller/themeswitchertool/"></script>
+		<div id="switcher"></div>
+		 
+		<h2>Features</h2>
+		<ul>
+			<li>Search within available options, if there are a lots of them</li>
+			<li>Remote search if too many items, with custom parameters to control remote script</li>
+			<li>Displaying counts of selected and available items</li>
+			<li>Select All / Deselect All Buttons</li>
+			<li>Drag 'n drop support using droppables and/or sortables independantly</li>
+			<li>List sorting and node events callbacks for more customizations</li>
+		</ul>
+
+		<h2>Localisation</h2>
+		<ul>
+			<li>All messages are using a string template function to allow localization. To specify a locale template, copy the <code>/js/locale/ui.multiselect-en.js</code> template, rename the file (ie: for french, <code>ui.multiselect-fr.js</code>), open it, and translate the strings, save. Then add the script between <code>ui.multiselect.js</code> and your widget initialization script.</li>
+			<li>For more information about the string template format, read <a href="http://andrew.hedges.name/blog/2008/09/03/introducing-jquery-simple-templates">Andrew Hedges' blog</a>.
+		</ul>
+		
+		<h2>Known bugs</h2>
+		<ul>
+			<li><del>Drag'n'drop may not select items properly. The problem is more apparaent when the containers are sortable.</del</li>
+			<li><del>Talking about sortables, they are not sorted correctly 90% of the time....</del></li>
+			<li>The widget may trigger an error inside JQuery itself <em>...but Seems to be fixed, please report if the problem occurs.</em></li>
+         <li><a href="http://github.com/yanickrochon/multiselect/issues">...more?</a></li>
+		</ul>
+	 
+		<h2>Contributors</h2>
+		<ul>
+			<li><a href="http://github.com/michael/multiselect/">Michael Aufreiter</a></li>
+			<li><a href="http://github.com/yanickrochon/multiselect">Yanick Rochon</a></li>
+		</ul>
+
+		<h2>Misc</h2>
+		<p>
+			There are no limitations. Do whatever you want with this plugin.
+			If you did some nice modifications, just let us know (via Github). We'd be happy to review them, and perhaps include them.
+		</p>
 	</div> 
- 
+
+	<!-- Options -->
+	<div id="optionTabs" class="UIAPIPlugin">
+		<ul>
+			<li><a href="#optionTabs-1">Options</a></li>
+			<li><a href="#optionTabs-2">Methods</a></li>
+			<li><a href="#optionTabs-3">Events</a></li>
+		</ul>
+
+		<div id="optionTabs-1">
+
+			<ul class="options-list">
+		   
+				<!-- option - animated -->
+				<li class="option" id="option-animated">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-animated">animated</a></h3>
+
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">String, null</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">'fast'</dd>
+						</dl>
+					</div>
+
+					<div class="option-description">
+						<p>When <i>animated</i> is specified, the multiselect UI will use transition effects between interactions. The possible values are 'fast', 'slow' and null (no animation).</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with the <code>animated</code> option specified.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ animated: 'fast' });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>animated</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var animated = $('.selector').dialog('option', 'animated');
+//setter
+$('.selector').dialog('option', 'animated', 'slow');</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-dataParser">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-dataParser">dataParser</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">Function</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default"><i>defaultDataParser</i></dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Used with remote search, this function is called to parse the data received and return the data in the expected format.</p>
+						<p>The function takes the raw received data from the request and should return a JSON object corresponding to the new available options to add. The returned object should have the following structure :</p>
+						<pre><code>{
+	"key1": {
+		selected: boolean,
+		value: string
+	}[,
+	"key2": {
+		selected: boolean,
+		value: string
+	}[,
+	...]]
+}</code></pre>
+						<p>If the data should be discarded, the function may return false or null.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with the a pass-through dataParser<br />
+								<span style="font-weight: normal; font-style: italic;">(expects to receive the correct raw data format from the server)</span>
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ dataParser: function(data) { return data; } });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>dataParser</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var dataParser = $('.selector').dialog('option', 'dataParser');
+//setter
+$('.selector').dialog('option', 'dataParser', newDataParser);</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-dividerLocation">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-dividerLocation">dividerLocation</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">float</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">0.6</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Specify the portion of the selected (left side) area of the multiselect. To have an even split multiselect, set <i>dividerLocation</i> to 0.5. The value should be between 0 and 1.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with the <code>dividerLocation</code> option specified.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ dividerLocation: 0.55 });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>dividerLocation</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var dividerLocation = $('.selector').dialog('option', 'dividerLocation');
+//setter
+$('.selector').dialog('option', 'dividerLocation', 0.55);</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-droppable">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-droppable">droppable</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">String</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">'both'</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Enable or disable basic drag and drop functionality between the selected list (left) and the available list (right). The possible values are 'both', 'left', 'right', 'none'. And set drop support in both lists, the selected list, the available list, or no drag and drop respectively.</p>
+						<p>This setting is readonly at run-time. Trying to set this property after initialization will display an alert message.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with the no drag and drop functionality.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ droppable: 'none' });</code></pre>
+							</dd>
+							<dt>
+								Get the <code>droppable</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var droppable = $('.selector').dialog('option', 'droppable');</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-hide">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-hide">hide</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">String</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">'slideUp'</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Specify the <i>hide</i> animation function to use. If <i>animated</i> is null, the value will be overriden to 'hide'. The possible values are any available function effects name. The default value for animated hide effect is 'slideUp'.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with the <code>hide</code> option specified.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ hide: 'fadeOut' });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>hide</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var hide = $('.selector').dialog('option', 'hide');
+//setter
+$('.selector').dialog('option', 'hide', 'fadeOut');</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-nodeComparator">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-nodeComparator">nodeComparator</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">Function, null</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">defaultNodeComparator</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Comparator function used in ordering the list's elements during transfer. The function takes two arguments, a and b, and should return a numeric value less than 0 if a &lt; b, 0 if a == b, or greater than 0 if a &gt; b respectively.</p>
+						<p>The function is only called when using '+', '-', 'add all' and 'remove all' action controls, and is never called when using drag and drop item transfer. By default, items are sorted by content value ascending. To completely disable automatic list ordering, set <i>nodeComparator</i> to null.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with option key ordering <code>nodeComparator</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ nodeComparator: function(a, b) {
+	var ka = node1.data('multiselect.optionLink').val(),
+		 kb = node2.data('multiselect.optionLink').val();
+	return ka == kb ? 0 : (ka < kb ? -1 : 1);
+} } });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>nodeComparator</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var nodeComparator = $('.selector').dialog('option', 'nodeComparator');
+//setter (will only be applied on new inserted items only!)
+$('.selector').dialog('option', 'nodeComparator', newNodeComparator);</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-nodeInserted">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-nodeInserted">nodeInserted</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">Function, null</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">null</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Callback function fired for each newly inserted items. The function takes the inserted item as a JQuery object and does not expect any return value.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect a <code>nodeInserted</code> callback.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ nodeInserted: function(item) {
+	item.attr('title', item.text()); // set a "tooltip" to newly added items
+} } });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>animated</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var nodeInserted = $('.selector').dialog('option', 'nodeInserted');
+//setter
+$('.selector').dialog('option', 'nodeInserted', newCallback);</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-searchable">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-searchable">searchable</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">boolean</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">true</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Enable or disable search capabilities for this instance of the multiselect.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with <code>searchable</code> option disabled.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ searchable: false });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>searchable</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var searchable = $('.selector').dialog('option', 'searchable');
+//setter (reset search filter)
+$('.selector').dialog('option', 'searchable', false);</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-searchDelay">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-searchDelay">searchDelay</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">int</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">400</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Define the input search delay before a request is sent to the server. The default value is 400 milliseconds.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with a 1 second <code>searchDelay</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ searchDelay: 1000 });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>searchDelay</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var searchDelay = $('.selector').dialog('option', 'searchDelay');
+//setter
+$('.selector').dialog('option', 'searchDelay', 1000);</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-show">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-show">show</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">String</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">'slideDown'</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Specify the <i>show</i> animation function to use. If <i>animated</i> is null, the value will be overriden to 'show'. The possible values are any available function effects name. The default value for animated hide effect is 'slideDown'.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with the <code>show</code> option specified.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ show: 'fadeIn' });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>show</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var show = $('.selector').dialog('option', 'show');
+//setter
+$('.selector').dialog('option', 'show', 'fadeIn');</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-sortable">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-sortable">sortable</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">String</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">'left'</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Enable or disable item <i>sortable</i> functionality through drag and drop for the selected list (left) and/or the available list (right). The possible values are 'both', 'left', 'right', 'none'. And set <i>sortable</i> support in both lists, the selected list only, the available list only, or none <i>sortable</i> respectively.</p>
+						<p>This setting overrides <a href="#option-droppable">droppable</a> for the specified list. This setting is readonly at run-time (like <a href="#option-droppable">droppable</a>).</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect <i>sortable</i> functionality across both lists.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ sortable: 'both' });</code></pre>
+							</dd>
+							<dt>
+								Get the <code>sortable</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var sortable = $('.selector').dialog('option', 'sortable');</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-remoteParams">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-remoteParams">remoteParams</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">Object</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">{ }</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p>Specify some extra remote parameters to send with every remote search requests. Note that the 'q' argument is reserved by multiselect and if <i>remoteParams</i> contains a key called 'q', it will be overriden with the search query.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect searchable remotely with extra params
+							</dt>
+							<dd>
+								<pre><code>// server expect to receive a public key for secure requests
+// our public key is "foo", send this key automatically with every search request
+$('.selector').multiselect({ remoteUrl: 'ajax.php', remoteParams: { publickey: 'foo' } });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>remoteParams</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var remoteParams = $('.selector').dialog('option', 'remoteParams');
+//setter
+$('.selector').dialog('option', 'remoteParams', { publickey: 'bar' });</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<li class="option" id="option-remoteUrl">
+					<div class="option-header">
+						<h3 class="option-name"><a href="#option-remoteUrl">remoteUrl</a></h3>
+						<dl>
+							<dt class="option-type-label">Type:</dt>
+							<dd class="option-type">String, null</dd>
+				
+							<dt class="option-default-label">Default:</dt>
+							<dd class="option-default">null</dd>
+						</dl>
+					</div>
+					<div class="option-description">
+						<p></p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Initialize a multiselect with a given remote url.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ remoteUrl: 'ajax.php' });</code></pre>
+							</dd>
+							<dt>
+								Get or set the <code>remoteUrl</code> option, after init.
+							</dt>
+							<dd>
+								<pre><code>//getter
+var remoteUrl = $('.selector').dialog('option', 'remoteUrl');
+//setter
+$('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+			</ul>
+		</div>
+
+
+		<div id="optionTabs-2">
+
+			<ul class="methods-list">
+
+				<li class="method" id="method-enabled">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-enabled">enabled</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'enabled', <span class="optional">[</span>state<span class="optional">]</span> )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Get or set the state of the enabled multiselect. If no state is specified, will act as a getter.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-deselect">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-deselect">deselect</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'deselect', item )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Deselect the specified item. The value should be key of the option to deselect. If value is numeric and is &gt;= 0 and is &lt; selected item count, the item at position value will be deselected.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-destroy">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-destroy">destroy</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'destroy' )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Remove the multiselect functionality completely. This will return the element back to it's default look.</p>
+				  </div>
+				</li>
+      
+				<li class="method" id="method-isBusy">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-isBusy">isBusy</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'isBusy' )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Return the busy state of the multiselect. The method will return true if the multiselect is processing item selection, search, etc.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-isSelected">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-isSelected">isSelected</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'isSelected', item )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Return true if and only if item is selected. The value should be key of the option to verify. If value is numeric and is &gt;= 0 and is &lt; selected item count, the method will return true.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-option">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-option">option</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'option', optionName, <span class="optional">[</span>value<span class="optional">]</span> )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Get or set any dialog option. If no value is specified, will act as a getter.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-search">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-search">search</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'search', query )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Perform a search of all the available elements, and filter out (hide) any unmatched item. This method controls the search input fields, if the multiselect is not searchable, is busy, or not enabled, the method does nothing.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-select">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-select">select</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'select', item )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Select the specified item. The value should be key of the option to select. If value is numeric and is &gt;= 0 and is &lt; available item count, the item at position value will be selected.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-selectAll">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-selectAll">selectAll</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'selectAll' )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Select all of the available items.</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-selectedValues">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-selectedValues">selectedValues</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'selectedValues' )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Return an array of the keys of all the currently selected values (equivalent to "Add all").</p>
+				  </div>
+				</li>
+
+				<li class="method" id="method-selectNone">
+					<div class="method-header">
+						<h3 class="method-name"><a href="#method-selectNone">selectNone</a></h3>
+						<dl>
+							<dt class="method-signature-label">Signature:</dt>
+							<dd class="method-signature">.multiselect( 'selectNone' )</dd>
+						</dl> 
+					</div>
+				  <div class="method-description">
+					 <p>Deselect all the selected items (equivalent to "Remove all").</p>
+				  </div>
+				</li>
+
+			</ul>
+
+		</div>
+
+		<div id="optionTabs-3">
+
+			<p>
+				All event callbacks receive two parameters: the event object and the ui object. The ui object's property may vary between events, but all share these basic properties:
+				<ul style="padding-bottom: 20px;">
+					<li><strong>ui.sender : </strong>the SELECT element where the event originated (use $(ui.sender).multiselect(...) to access widget)</li>
+				</ul>
+			</p>
+
+			<ul class="events-list">
+		   
+				<!-- event - deselected -->
+				<li class="event" id="event-deselected">
+					<div class="event-header">
+						<h3 class="event-name"><a href="#event-deselected">deselected</a></h3>
+
+						<dl>
+							<dt class="event-type-label">Type:</dt>
+							<dd class="event-type">multiselectdeselected</dd>
+						</dl>
+					</div>
+
+					<div class="event-description">
+						<p>This event is triggered whenever the an option has been deselected. The event <code>deselected</code> is triggered for every option deselected.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Supply a feedback function to handle the <code>deselected</code> events as an init option.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ deselected: function(event, ui) { alert($(ui.option).val() + " has been deselected"); } });</code></pre>
+							</dd>
+							<dt>
+								Bind to the <code>deselected</code> event of type <code>multiselectdeselected</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').bind('multiselectdeselected', function(event, ui) {
+  ...   // ui.option is the DOMOption node of ui.sender
+});</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<!-- event - messages -->
+				<li class="event" id="event-messages">
+					<div class="event-header">
+						<h3 class="event-name"><a href="#event-messages">messages</a></h3>
+
+						<dl>
+							<dt class="event-type-label">Type:</dt>
+							<dd class="event-type">multiselectmessages</dd>
+						</dl>
+					</div>
+
+					<div class="event-description">
+						<p>This event is triggered whenever the widget needs to send some feedback to the user.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Supply a feedback function to handle the <code>messages</code> supplied by the widget as an init option. The <strong>ui</strong> object will hold these extra parameters:
+								<span style="font-weight: 100; font-size: 90%;">
+								<ul>
+									<li><strong>ui.description : </strong>a preformatted message describing the event's message</li>
+									<li><strong>ui.type : </strong>one of the following value: 0=message (warning), 1=exception, 2=error</li>
+								</ul>
+								</span>
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ messages: function(event, ui) { alert(ui.description); } });</code></pre>
+							</dd>
+							<dt>
+								Bind to the <code>messages</code> event of type <code>multiselectmessages</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').bind('multiselectmessages', function(event, ui) {
+  ...
+});</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+				<!-- event - selected -->
+				<li class="event" id="event-selected">
+					<div class="event-header">
+						<h3 class="event-name"><a href="#event-selected">selected</a></h3>
+
+						<dl>
+							<dt class="event-type-label">Type:</dt>
+							<dd class="event-type">multiselectselected</dd>
+						</dl>
+					</div>
+
+					<div class="event-description">
+						<p>This event is triggered whenever the an option has been selected. The event <code>selected</code> is triggered for every option selected.</p>
+					</div>
+					<div class="option-examples">
+						<h4>Code examples</h4>
+						<dl class="option-examples-list">
+							<dt>
+								Supply a feedback function to handle the <code>selected</code> events as an init option.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').multiselect({ selected: function(event, ui) { alert($(ui.option).val() + " has been selected"); } });</code></pre>
+							</dd>
+							<dt>
+								Bind to the <code>selected</code> event of type <code>multiselectselected</code>.
+							</dt>
+							<dd>
+								<pre><code>$('.selector').bind('multiselectselected', function(event, options) {
+  ...   // ui.option is the DOMOption node of ui.sender
+});</code></pre>
+							</dd>
+						</dl>
+					</div>
+				</li>
+
+			</ul>			
+
+		</div>
+
+	</div>
+
 	<div id="footer"> 
-		<p class="left">A <a href="http://quasipartikel.at/">Quasipartikel</a> Production</p>
 		<p class="right">Template adopted from <a href="http://orderedlist.com/demos/fancy-zoom-jquery/">orderedlist.com</a></p>
 		<br class="clear"/>
 	</div> 
