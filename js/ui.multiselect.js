@@ -861,7 +861,7 @@ $.extend($.ui.multiselect, {
 	getter: 'selectedValues enabled isBusy',
 	defaults: {
 		// sortable and droppable
-		sortable: 'both',
+		sortable: 'left',
 		droppable: 'both',
 		// searchable
 		searchable: true,
