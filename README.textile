@@ -1,0 +1,10 @@
+h2. jQuery UI Multiselect Next
+
+This is supposed become the final version (1.0) of jQuery UI Multiselect one day ;-).
+
+Please visit Yanick's demo page to see the most recent version in action!
+
+"http://yanickrochon.uuuq.com/multiselect/com":http://yanickrochon.uuuq.com/multiselect/
+
+If you have suggestions or did some nice modifications just let us know.
+We'd be happy to review them, and perhaps include them.
