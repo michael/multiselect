@@ -15,6 +15,7 @@
  *	 ui.core.js
  *	 ui.draggable.js
  *  ui.droppable.js
+ *  ui.sortable.js
  *  jquery.blockUI (http://github.com/malsup/blockui/)
  *  jquery.tmpl (http://andrew.hedges.name/blog/2008/09/03/introducing-jquery-simple-templates
  *
@@ -27,7 +28,7 @@
  * 
  * Todo:
  *  restore selected items on remote searchable multiselect upon page reload (same behavior as local mode)
- *  add sort (is it worth it??) public function to apply the nodeComparator to all items (when using nodeComparator setter)
+ *  (is it worth it??) add a public function to apply the nodeComparator to all items (when using nodeComparator setter)
  *  tests and optimizations
  *    - test getters/setters (including options from the defaults)
  */
@@ -122,13 +123,13 @@ $.widget("ui.multiselect", {
 		return Array.prototype.slice.apply(values);
 	},
 	// get/set enable state
-	enabled: function(state) {
+	enabled: function(state, msg) {
 		if (undefined !== state) {
 			if (state) {
 				this.container.unblock();
 				this.element.removeAttr('disabled');
 			} else {
-				this.container.block({message:null,overlayCSS:{backgroundColor:'#fff',opacity:0.3,cursor:'default'}});
+				this.container.block({message:msg||null,overlayCSS:{backgroundColor:'#fff',opacity:0.4,cursor:'default'}});
 				this.element.attr('disabled', true);
 			}
 		}
@@ -144,17 +145,17 @@ $.widget("ui.multiselect", {
 			this._batchSelect(this.selectedList.children('li.ui-element:visible'), false);
 		}
 	},
-	select: function(item) {
+	select: function(text) {
 		if (this.enabled()) {
-			var available = this._findItem(item, this.availableList);
+			var available = this._findItem(text, this.availableList);
 			if ( available ) {
 				this._setSelected(available, true);
 			}
 		}
 	},
-	deselect: function(item) {
+	deselect: function(text) {
 		if (this.enabled()) {
-			var selected = this._findItem(item, this.selectedList);
+			var selected = this._findItem(text, this.selectedList);
 			if ( selected ) {
 				this._setSelected(selected, false);
 			}
@@ -189,6 +190,8 @@ $.widget("ui.multiselect", {
 				this._populateLists($(elements));
 			}
 
+			this._filter(this.availableList.children('li.ui-element')); 
+
 			this._setBusy(wasBusy);
 			return elements.length;
 		} else {
@@ -215,15 +218,35 @@ $.widget("ui.multiselect", {
 			case 'droppable':
 			case 'sortable':
 				// readonly options
-				this._messages($.ui.multiselect.locale.errorReadonly, {option: key});
+				this._messages(
+					$.ui.multiselect.constante.MESSAGE_WARNING,
+					$.ui.multiselect.locale.errorReadonly, 
+					{option: key}
+				);
 			default:
 				// default behavior
 				this.options[key] = value;
 				break;
 		}
 	},
-	_messages: function(msg, params) {
-		this._trigger('error', null, $.tmpl(msg, params));
+	_ui: function(type) {
+		var uiObject = {sender: this.element};
+		switch (type) {
+			// events: messages
+			case 'message':
+				uiObject.type = arguments[1];
+				uiObject.message = arguments[2];
+				break;
+
+			// events: selected, deselected
+			case 'selection':
+				uiObject.option = arguments[1];
+				break;
+		}
+		return uiObject;
+	},
+	_messages: function(type, msg, params) {
+		this._trigger('messages', null, this._ui('message', type, $.tmpl(msg, params)));
 	},
 
 	_refreshDividerLocation: function() {
@@ -251,10 +274,11 @@ $.widget("ui.multiselect", {
 				items: 'li.ui-element',
 				revert: !(opts[otherSide].sortable || opts[otherSide].droppable),
 				receive: function(event, ui) {
-					that._trigger('debug', null, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected );
+					// DEBUG
+					that._messages(0, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected);
 	
 					// we received an element from a sortable to another sortable...
-					if (opts[side].sortable && opts[otherSide].sortable) {
+					if (opts[otherSide].sortable) {
 						var optionLink = ui.item.data('multiselect.optionLink');
 
 						that._applyItemState(ui.item.hide(), itemSelected);
@@ -265,24 +289,25 @@ $.widget("ui.multiselect", {
 						}
 
 						ui.item.hide();
-						// hack our way for this one...
-						ui.item = that._cloneWithData(ui.item, otherSide, false);
+						that._setSelected(ui.item, itemSelected, true);
+					} else {
+						// the other is droppable only, so merely select the element...
+						setTimeout(function() { 
+							that._setSelected(ui.item, itemSelected);
+						}, 10);
 					}
-
-					setTimeout(function() { 
-						
-						that._setSelected(ui.item, itemSelected);
-					}, 10);
 				},
 				stop: function(event, ui) {
-					that._trigger('debug', null, "Stop : " + (ui.item.parent()[0] == otherList[0]) );
-
+					// DEBUG
+					that._messages(0, "Stop : " + (ui.item.parent()[0] == otherList[0]));
 					that._moveOptionNode(ui.item);
 				}
 			});
 		}
 
-		if (opts[side].droppable || opts[otherSide].sortable || opts[otherSide].droppable) {
+		// cannot be droppable if both lists are sortable, it breaks the receive function
+		if (!(opts[side].sortable && opts[otherSide].sortable)
+		 && (opts[side].droppable || opts[otherSide].sortable || opts[otherSide].droppable)) {
 			//alert( side + " is droppable ");
 			list.droppable({
 				accept: '.ui-multiselect li.ui-element',
@@ -290,7 +315,9 @@ $.widget("ui.multiselect", {
 				revert: !(opts[otherSide].sortable || opts[otherSide].droppable),
 				greedy: true,
 				drop: function(event, ui) {
-					that._trigger('debug', null, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className );
+					// DEBUG
+					that._messages(0, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className);
+
 					//alert( "drop " + itemSelected );
 					// if no optionLink is defined, it was dragged in
 					if (!ui.draggable.data('multiselect.optionLink')) {
@@ -365,7 +392,11 @@ $.widget("ui.multiselect", {
 					// try again later (let the browser cool down first)
 					setTimeout(function() { _addNode(); }, 1);
 				} else {
-					that._messages($.ui.multiselect.locale.errorInsertNode, {key:node.data('multiselect.optionLink').val(), value:node.text()});
+					that._messages(
+						$.ui.multiselect.constante.MESSAGE_EXCEPTION,
+						$.ui.multiselect.locale.errorInsertNode, 
+						{key:node.data('multiselect.optionLink').val(), value:node.text()}
+					);
 					that._setBusy(wasBusy);
 				}
 			}
@@ -405,21 +436,16 @@ $.widget("ui.multiselect", {
 			}
 		}, 100);
 	},
-	// used by select and deselect
-	// TODO should the items be matched by their text (visible content) or key value?
-	_findItem: function(item, list) {
+	// used by select and deselect, etc.
+	_findItem: function(text, list) {
 		var found = null;
-		if (parseInt(item) == item) {
-			found = list.children('li.ui-element:visible:eq('+item+')');
-		} else {
-			list.children('li.ui-element:visible').each(function(i,el) {
-				el = $(el);
-				if (el.data('multiselect.optionLink').val().toLowerCase() === item.toLowerCase()) {
-					found = el;
-				}
-			});
-		}
-		if ( (null !== found) && (1 === found.size()) ) {
+		list.children('li.ui-element:visible').each(function(i,el) {
+			el = $(el);
+			if (el.text().toLowerCase() === text.toLowerCase()) {
+				found = el;
+			}
+		});
+		if (found && found.size()) {
 			return found;
 		} else {
 			return false;
@@ -526,7 +552,10 @@ $.widget("ui.multiselect", {
 	
 		return succ;
 	},
-	_setSelected: function(item, selected) {
+	// @param DOMElement item         is the item to set
+   // @param bool selected           true|false (state)
+   // @param bool noclone (optional) true only if item should not be cloned on the other list
+	_setSelected: function(item, selected, noclone) {
 		var that = this, otherItem;
 		var optionLink = item.data('multiselect.optionLink');
 
@@ -535,18 +564,26 @@ $.widget("ui.multiselect", {
 			if (optionLink.attr('selected')) return;
 			optionLink.attr('selected','selected');
 
-			// retrieve associatd or cloned item
-			otherItem = this._cloneWithData(item, 'selected', true).hide();
+			if (noclone) {
+				otherItem = item;
+			} else {
+				// retrieve associatd or cloned item
+				otherItem = this._cloneWithData(item, 'selected', true).hide();
+				item.addClass('shadowed')[this.options.hide](this.options.animated, function() { that._updateCount(); });
+			}
 			otherItem[this.options.show](this.options.animated);
-			item.addClass('shadowed')[this.options.hide](this.options.animated, function() { that._updateCount(); });
 		} else {
 			// already deselected
 			if (!optionLink.attr('selected')) return;
 			optionLink.removeAttr('selected');
 
-			// retrieve associated or clone the item
-			otherItem = this._cloneWithData(item, 'available', true).hide().removeClass('shadowed');
-			item[this.options.hide](this.options.animated, function() { that._updateCount() });
+			if (noclone) {
+				otherItem = item;
+			} else {
+				// retrieve associated or clone the item
+				otherItem = this._cloneWithData(item, 'available', true).hide().removeClass('shadowed');
+				item[this.options.hide](this.options.animated, function() { that._updateCount() });
+			}
 			if (!otherItem.is('.filtered')) otherItem[this.options.show](this.options.animated);
 		}
 
@@ -559,7 +596,7 @@ $.widget("ui.multiselect", {
 		}
 
 		// fire selection event
-		this._trigger(selected ? 'selected' : 'deselected', null, optionLink);
+		this._trigger(selected ? 'selected' : 'deselected', null, this._ui('selection', optionLink));
 		
 		return otherItem;
 	},
@@ -693,17 +730,24 @@ $.widget("ui.multiselect", {
 				if (that.options.remoteUrl) {
 					var params = $.extend({}, that.options.remoteParams);
 					try {
-						$.get(
-							that.options.remoteUrl,
-							$.extend(params, {q:escape(value)}),
-							function(data) { 
+						$.ajax({
+							url: that.options.remoteUrl,
+							data: $.extend(params, {q:escape(value)}),
+							success: function(data) { 
 								that.addOptions(data);
-								that._filter(that.availableList.children('li.ui-element')); 
+								that._setBusy(false); 
+							},
+							error: function(request,status,e) {
+								that._messages(
+									$.ui.multiselect.constants.MESSAGE_ERROR, 
+									$.ui.multiselect.locale.errorRequest, 
+									{status:status}
+								);
 								that._setBusy(false); 
 							}
-						);
+						});
 					} catch (e) {
-						that._messages(e.message);   // error message template ??
+						that._messages($.ui.multiselect.constante.MESSAGE_EXCEPTION, e.message);   // error message template ??
 						that._setBusy(false); 
 					}
 				} else {
@@ -776,6 +820,7 @@ var _dragHelper = function(event, ui) {
  *  Default callbacks
  ********************************/
 
+// expect data to be "val1=text1[\nval2=text2[\n...]]"
 var defaultDataParser = function(data) {
 	if ( typeof data == 'string' ) {
 		var pattern = /^(\s\n\r\t)*\+?$/;
@@ -795,12 +840,11 @@ var defaultDataParser = function(data) {
 			}
 		}
 	} else {
-		this._messages($.ui.multiselect.locale.errorDataFormat);
+		this._messages($.ui.multiselect.constante.MESSAGE_ERROR, $.ui.multiselect.locale.errorDataFormat);
 		data = false;
 	}
 	return data;
 };
-
 
 var defaultNodeComparator = function(node1,node2) {
 	var text1 = node1.text(),
@@ -817,7 +861,7 @@ $.extend($.ui.multiselect, {
 	getter: 'selectedValues enabled isBusy',
 	defaults: {
 		// sortable and droppable
-		sortable: 'left',
+		sortable: 'both',
 		droppable: 'both',
 		// searchable
 		searchable: true,
@@ -843,7 +887,13 @@ $.extend($.ui.multiselect, {
 		busy:'please wait...',
 		errorDataFormat:"Cannot add options, unknown data format",
 		errorInsertNode:"There was a problem trying to add the item:\n\n\t[#{key}] => #{value}\n\nThe operation was aborted.",
-		errorReadonly:"The option #{option} is readonly"
+		errorReadonly:"The option #{option} is readonly",
+		errorRequest:"Sorry! There seemed to be a problem with the remote call. (Type: #{status})"
+	},
+	constants: {
+		MESSAGE_WARNING: 0,
+		MESSAGE_EXCEPTION: 1,
+		MESSAGE_ERROR: 2
 	}
 });
 

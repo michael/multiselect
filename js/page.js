@@ -5,17 +5,52 @@
  */
 $(function() {
 
-	// bind error messages
-	$('#countries, #languages').bind('multiselectmessages multiselectdebug', function(event, msg) {
-		$('#debug').append('<div>' + msg + '</div>');
-	})
-	.bind('multiselectselected', function(event, option) {
-		$('#debug').append('<div>The option ' + $(option).text() + " was selected</div>");
-	})
-	.bind('multiselectdeselected', function(event, option) {
-		$('#debug').append('<div>The option ' + $(option).text() + " was deselected</div>");
-	})
-	;
+	var DEBUG = false; // true for displaying debug information
+
+	$('#debug').dialog({
+		autoOpen: DEBUG,   
+		closeOnEscape: true,
+		draggable: true,
+		resizable: true,
+		position: [10, 140],
+		width: 300,
+		height: 300,
+		title: 'Debug',
+		buttons: {
+			'Clear': function() {
+				$('#debug').html('');
+			}
+		}
+	});
+	if (DEBUG) {
+		// bind error messages
+		$('#countries, #languages').bind('multiselectmessages', function(event, ui) {
+			$('#debug').append('<div>' + ui.message + '</div>');
+		})
+		.bind('multiselectselected', function(event, ui) {
+			$('#debug').append('<div>The option ' + $(ui.option).text() + " was selected</div>");
+		})
+		.bind('multiselectdeselected', function(event, ui) {
+			$('#debug').append('<div>The option ' + $(ui.option).text() + " was deselected</div>");
+		})
+		;
+	};
+
+	$.get('version.txt', function(data) { $('#header > h1:first').after('<span style="font-size:12px; font-family: arial;">version ' + data + '</span>'); });
+
+	$('#license-info').dialog({
+		autoOpen:false,
+		title:"License information",
+		width:580,
+		height:380,
+		resizable:false,
+		modal:true
+	});
+	$('#license').click(function() { 
+		$('#license-info').dialog('open');
+		return false;
+	});
+
 
 	$('#tabs, #optionTabs').tabs();
 
@@ -47,21 +82,6 @@ $(function() {
 		width: $('#submitFrame').width(),
 		height: $('#submitFrame').height() + 65,
 		title: "Form submit result"				
-	});
-	$('#debug').dialog({
-		autoOpen: true,   // true for displaying debug information (if any)
-		closeOnEscape: true,
-		draggable: true,
-		resizable: true,
-		position: [10, 140],
-		width: 300,
-		height: 300,
-		title: 'Debug',
-		buttons: {
-			'Clear': function() {
-				$('#debug').html('');
-			}
-		}
 	});
 
 	$('form').submit(function() {

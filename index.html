@@ -46,7 +46,6 @@
 		</h4>
 		<p>
 			Another attempt of a <em>sortable</em>, <em>searchable</em> multiple select widget.<br />
-			<em><strong>IMPORTANT:</strong> This version is under development</em>
 		</p> 
 		
 		<ul id="nav">
@@ -66,7 +65,15 @@
 		<p>
 			Localisation support is done through the localization plugin available <a href="http://plugins.jquery.com/project/localisation">here</a>.
 		</p>
-		 
+
+		<p>
+			The widget is available under the MIT license.
+			<a id="license" href="#license">View license information</a>
+			<div id="license-info" style="display: none;">
+				<iframe id="frameLicense" name="frameLicense" src="MIT-LICENSE.txt" style="width:100%; height:100%;"></iframe>
+			</div>
+		</p>
+
 		<ul>
 			<li>For installation instructions please have a look at the corresponding <a href="http://www.quasipartikel.at/2009/05/10/jqueryui-multiselect/">blogpost</a></li>
 			<li>Source code is available at <a href="http://github.com/yanickrochon/multiselect/" title="Social Coding">Github</a></li>
@@ -294,10 +301,9 @@
 		
 		<h2>Known bugs</h2>
 		<ul>
-			<li><del>The draggables may act weird in IE. This bug is under inverstigation.</del></li>
-			<li>Drag'n'drop may not select items properly. The problem is more apparaent when the containers are sortable.</li>
-			<li>Talking about sortables, they are not sorted correctly 90% of the time....</li>
-			<li>The widget may trigger an error inside JQuery itself. This bug is under inverstigation.</li>
+			<li><del>Drag'n'drop may not select items properly. The problem is more apparaent when the containers are sortable.</del</li>
+			<li><del>Talking about sortables, they are not sorted correctly 90% of the time....</del></li>
+			<li>The widget may trigger an error inside JQuery itself <em>...but Seems to be fixed, please report if the problem occurs.</em></li>
          <li><a href="http://github.com/yanickrochon/multiselect/issues">...more?</a></li>
 		</ul>
 	 
@@ -310,7 +316,7 @@
 		<h2>Misc</h2>
 		<p>
 			There are no limitations. Do whatever you want with this plugin.
-			If you did some nice modifications, just let me know (via Github). I'd be happy to include them.
+			If you did some nice modifications, just let us know (via Github). We'd be happy to review them, and perhaps include them.
 		</p>
 	</div> 
 
@@ -321,7 +327,6 @@
 			<li><a href="#optionTabs-2">Methods</a></li>
 			<li><a href="#optionTabs-3">Events</a></li>
 		</ul>
-
 
 		<div id="optionTabs-1">
 
@@ -975,6 +980,13 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 
 		<div id="optionTabs-3">
 
+			<p>
+				All event callbacks receive two parameters: the event object and the ui object. The ui object's property may vary between events, but all share these basic properties:
+				<ul style="padding-bottom: 20px;">
+					<li><strong>ui.sender : </strong>the SELECT element where the event originated (use $(ui.sender).multiselect(...) to access widget)</li>
+				</ul>
+			</p>
+
 			<ul class="events-list">
 		   
 				<!-- event - deselected -->
@@ -998,14 +1010,14 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 								Supply a feedback function to handle the <code>deselected</code> events as an init option.
 							</dt>
 							<dd>
-								<pre><code>$('.selector').multiselect({ deselected: function(event, option) { alert($(options).val() + " has been deselected"); } });</code></pre>
+								<pre><code>$('.selector').multiselect({ deselected: function(event, ui) { alert($(ui.option).val() + " has been deselected"); } });</code></pre>
 							</dd>
 							<dt>
 								Bind to the <code>deselected</code> event of type <code>multiselectdeselected</code>.
 							</dt>
 							<dd>
-								<pre><code>$('.selector').bind('multiselectdeselected', function(event, options) {
-  ...
+								<pre><code>$('.selector').bind('multiselectdeselected', function(event, ui) {
+  ...   // ui.option is the DOMOption node of ui.sender
 });</code></pre>
 							</dd>
 						</dl>
@@ -1024,16 +1036,22 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 					</div>
 
 					<div class="event-description">
-						<p>This event is triggered whenever the widget needs to send some feedback to the user. The handler will receive any pre-formatted (localized) messages as second argument.</p>
+						<p>This event is triggered whenever the widget needs to send some feedback to the user.</p>
 					</div>
 					<div class="option-examples">
 						<h4>Code examples</h4>
 						<dl class="option-examples-list">
 							<dt>
-								Supply a feedback function to handle the <code>messages</code> supplied by the widget as an init option.
+								Supply a feedback function to handle the <code>messages</code> supplied by the widget as an init option. The <strong>ui</strong> object will hold these extra parameters:
+								<span style="font-weight: 100; font-size: 90%;">
+								<ul>
+									<li><strong>ui.description : </strong>a preformatted message describing the event's message</li>
+									<li><strong>ui.type : </strong>one of the following value: 0=message (warning), 1=exception, 2=error</li>
+								</ul>
+								</span>
 							</dt>
 							<dd>
-								<pre><code>$('.selector').multiselect({ messages: function(event, msg) { alert(msg); } });</code></pre>
+								<pre><code>$('.selector').multiselect({ messages: function(event, ui) { alert(ui.description); } });</code></pre>
 							</dd>
 							<dt>
 								Bind to the <code>messages</code> event of type <code>multiselectmessages</code>.
@@ -1068,14 +1086,14 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 								Supply a feedback function to handle the <code>selected</code> events as an init option.
 							</dt>
 							<dd>
-								<pre><code>$('.selector').multiselect({ selected: function(event, option) { alert($(options).val() + " has been selected"); } });</code></pre>
+								<pre><code>$('.selector').multiselect({ selected: function(event, ui) { alert($(ui.option).val() + " has been selected"); } });</code></pre>
 							</dd>
 							<dt>
 								Bind to the <code>selected</code> event of type <code>multiselectselected</code>.
 							</dt>
 							<dd>
 								<pre><code>$('.selector').bind('multiselectselected', function(event, options) {
-  ...
+  ...   // ui.option is the DOMOption node of ui.sender
 });</code></pre>
 							</dd>
 						</dl>
@@ -1089,7 +1107,6 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 	</div>
 
 	<div id="footer"> 
-		<p class="left">A <a href="http://quasipartikel.at/">Quasipartikel</a> Production</p>
 		<p class="right">Template adopted from <a href="http://orderedlist.com/demos/fancy-zoom-jquery/">orderedlist.com</a></p>
 		<br class="clear"/>
 	</div> 
