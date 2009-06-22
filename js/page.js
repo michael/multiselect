@@ -36,21 +36,27 @@ $(function() {
 		;
 	};
 
-	$.get('version.txt', function(data) { $('#header > h1:first').after('<span style="font-size:12px; font-family: arial;">version ' + data + '</span>'); });
+	$.ajaxSetup({ cache: false });  // prevent server caching the requests throughout the demo page
+	$.get('version.txt', function(data) { $('#header #version').text('version ' + data); });
 
-	$('#license-info').dialog({
+	$('#license-info-MIT').dialog({
 		autoOpen:false,
-		title:"License information",
+		title:"License information - MIT",
 		width:580,
 		height:380,
 		resizable:false,
 		modal:true
 	});
-	$('#license').click(function() { 
-		$('#license-info').dialog('open');
-		return false;
+	$('#license-MIT').click(function() { $('#license-info-MIT').dialog('open'); return false; });
+	$('#license-info-GPL').dialog({
+		autoOpen:false,
+		title:"License information - GPL",
+		width:620,
+		height:380,
+		resizable:false,
+		modal:true
 	});
-
+	$('#license-GPL').click(function() { $('#license-info-GPL').dialog('open'); return false; });
 
 	$('#tabs, #optionTabs').tabs();
 
@@ -126,5 +132,26 @@ $(function() {
 		getVisibleMultiselect().multiselect('deselect', $('#ec_inputItem').val() );
 	});
 
+	$('.options-list').find('.option-description, .option-examples').hide().end()
+	.find('.option-name a').click(function() {
+		var a = $(this);
+		var p = a.parents(a.attr('href'));
+		p.find('.option-examples, .option-description')['slide' + (p.find('.option-description').is(':visible') ? 'Up' : 'Down')]('fast');
+		return false;
+	});
+	$('.methods-list').find('.method-header > dl, .method-description').hide().end()
+	.find('.method-name a').click(function() {
+		var a = $(this);
+		var p = a.parents(a.attr('href'));
+		p.find('.method-header > dl, .method-description')['slide' + (p.find('.method-description').is(':visible') ? 'Up' : 'Down')]('fast');
+		return false;
+	});
+	$('.events-list').find('.event-description, .event-examples').hide().end()
+	.find('.event-name a').click(function() {
+		var a = $(this);
+		var p = a.parents(a.attr('href'));
+		p.find('.event-examples, .event-description')['slide' + (p.find('.event-description').is(':visible') ? 'Up' : 'Down')]('fast');
+		return false;
+	});
 
 });

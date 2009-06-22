@@ -46,6 +46,7 @@ div#header h1			{margin:0; padding:0;}
 ul#nav					{position:absolute; top:0px; right:10px; list-style:none; margin:0; padding:0;}
 ul#nav li				{display:inline; padding:0 0 0 5px;}
 ul#nav li a				{}
+div#version          {position:absolute; top:20px; right:10px; margin:0; padding:0;}
 div#content				{}
 div#footer				{margin:40px 0 0; border-top:1px dotted; padding:10px 0 0;}
 .left 					{float:left;}
@@ -95,7 +96,7 @@ ul.methods-list a:hover {
 
 ul.options-list,
 ul.options-list li.option { margin: 20px 0 0 0; padding: 0; list-style-type: none; list-style-image: none; }
-ul.options-list { margin-left: 6px; }
+ul.options-list { margin: 0 0 20px 6px; }
 ul.options-list li.option { padding-bottom: 10px !important; }
 ul.options-list li.option dl,
 ul.options-list li.option dt,
@@ -115,8 +116,8 @@ ul.options-list li.option .option-examples-list dd { margin-left: 10px; }
 ul.options-list li.option .option-examples-list dd pre code { background: none; }
 
 ul.events-list,
-ul.events-list li.events { margin: 20px 0 0 0; padding: 0; list-style-type: none; list-style-image: none; }
-ul.events-list { margin-left: 6px; }
+ul.events-list li.event { margin: 20px 0 0 0; padding: 0; list-style-type: none; list-style-image: none; }
+ul.events-list { margin: 0px 0px 20px 6px; }
 ul.events-list li.event { padding-bottom: 10px !important; }
 ul.events-list li.event dl,
 ul.events-list li.event dt,

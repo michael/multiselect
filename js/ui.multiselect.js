@@ -29,6 +29,8 @@
  * Todo:
  *  restore selected items on remote searchable multiselect upon page reload (same behavior as local mode)
  *  (is it worth it??) add a public function to apply the nodeComparator to all items (when using nodeComparator setter)
+ *  support for option groups, disabled options, etc.
+ *  speed improvements
  *  tests and optimizations
  *    - test getters/setters (including options from the defaults)
  */
@@ -106,7 +108,7 @@ $.widget("ui.multiselect", {
 		$.widget.prototype.destroy.apply(this, arguments);
 	},
 	isBusy: function() {
-		return this.busy;
+		return !!this.busy;
 	},
 	isSelected: function(item) {
 		if (this.enabled()) {
@@ -117,10 +119,7 @@ $.widget("ui.multiselect", {
 	},
 	// get all selected values in an array
 	selectedValues: function() {
-		var values = this.selectedList.children('li.ui-element:visible').map(function(i,item) {
-			return $(item).data('multiselect.optionLink').val();
-		});
-		return Array.prototype.slice.apply(values);
+		return $.map( this.element.find('option[selected]'), function(item,i) { return $(item).val(); });
 	},
 	// get/set enable state
 	enabled: function(state, msg) {
@@ -172,7 +171,6 @@ $.widget("ui.multiselect", {
 	// @return int   the number of options added
 	addOptions: function(data) {
 		if (this.enabled()) {
-			var wasBusy = this.busy;
 			this._setBusy(true);
 
 			// format data
@@ -192,7 +190,7 @@ $.widget("ui.multiselect", {
 
 			this._filter(this.availableList.children('li.ui-element')); 
 
-			this._setBusy(wasBusy);
+			this._setBusy(false);
 			return elements.length;
 		} else {
 			return false;
@@ -275,7 +273,7 @@ $.widget("ui.multiselect", {
 				revert: !(opts[otherSide].sortable || opts[otherSide].droppable),
 				receive: function(event, ui) {
 					// DEBUG
-					that._messages(0, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected);
+					//that._messages(0, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected);
 	
 					// we received an element from a sortable to another sortable...
 					if (opts[otherSide].sortable) {
@@ -299,7 +297,7 @@ $.widget("ui.multiselect", {
 				},
 				stop: function(event, ui) {
 					// DEBUG
-					that._messages(0, "Stop : " + (ui.item.parent()[0] == otherList[0]));
+					//that._messages(0, "Stop : " + (ui.item.parent()[0] == otherList[0]));
 					that._moveOptionNode(ui.item);
 				}
 			});
@@ -316,7 +314,7 @@ $.widget("ui.multiselect", {
 				greedy: true,
 				drop: function(event, ui) {
 					// DEBUG
-					that._messages(0, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className);
+					//that._messages(0, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className);
 
 					//alert( "drop " + itemSelected );
 					// if no optionLink is defined, it was dragged in
@@ -369,7 +367,6 @@ $.widget("ui.multiselect", {
 	},
 	_insertToList: function(node, list) {
 		var that = this;
-		var wasBusy = this.busy;
 		this._setBusy(true);
 		// the browsers don't like batch node insertion...
 		var _addNodeRetry = 0;
@@ -385,7 +382,7 @@ $.widget("ui.multiselect", {
 
 				// callback after node insertion
 				if ('function' == typeof that.options.nodeInserted) that.options.nodeInserted(node);
-				that._setBusy(wasBusy);
+				that._setBusy(false);
 			} catch (e) {
 				// if this problem did not occur too many times already
 				if ( _addNodeRetry++ < 10 ) {
@@ -397,7 +394,7 @@ $.widget("ui.multiselect", {
 						$.ui.multiselect.locale.errorInsertNode, 
 						{key:node.data('multiselect.optionLink').val(), value:node.text()}
 					);
-					that._setBusy(wasBusy);
+					that._setBusy(false);
 				}
 			}
 		};
@@ -482,7 +479,6 @@ $.widget("ui.multiselect", {
 		return clone;
 	},
 	_batchSelect: function(elements, state) {
-		var wasBusy = this.busy;
 		this._setBusy(true);
 
 		var that = this;
@@ -509,7 +505,7 @@ $.widget("ui.multiselect", {
 			$.extend(that.options, _backup);
 
 			that._updateCount();
-			that._setBusy(wasBusy);
+			that._setBusy(false);
 		}, 10);
 	},
 	// find the best successor the given item in the specified list
@@ -604,22 +600,27 @@ $.widget("ui.multiselect", {
 		var input = this.availableActions.children('input.search');
 		var busy = this.availableActions.children('.busy');
 
-		this.container.find("a.remove-all, a.add-all")[state ? 'hide' : 'show']();
-		if (state && !this.busy) {
-			// backup input state
-			input.data('multiselect.hadFocus', input.data('multiselect.hasFocus'));
-			// webkit needs to blur before hiding or it won't fire focus again in the else block
-			input.blur().hide();
+		this.busy = Math.max(state ? ++this.busy : --this.busy, 0);
+
+		this.container.find("a.remove-all, a.add-all")[this.busy ? 'hide' : 'show']();
+		if (state && (1 == this.busy)) {
+			if (this.options.searchable) {
+				// backup input state
+				input.data('multiselect.hadFocus', input.data('multiselect.hasFocus'));
+				// webkit needs to blur before hiding or it won't fire focus again in the else block
+				input.blur().hide();
+			}
 			busy.show();
-		} else if(!state && this.busy) {
+		} else if(!this.busy) {
 			if (this.options.searchable) {
 				input.show();
+				if (input.data('multiselect.hadFocus')) input.focus();
 			}
 			busy.hide();
-			if (input.data('multiselect.hadFocus')) input.focus();
 		}
 
-		this.busy = state;
+		// DEBUG
+		//this._messages(0, "Busy state changed to : " + this.busy);
 	},
 	_applyItemState: function(item, selected) {
 		if (selected) {
