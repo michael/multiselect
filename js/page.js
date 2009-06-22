@@ -5,7 +5,7 @@
  */
 $(function() {
 
-	var DEBUG = true; // true for displaying debug information
+	var DEBUG = false; // true for displaying debug information
 
 	$('#debug').dialog({
 		autoOpen: DEBUG,   

@@ -273,7 +273,7 @@ $.widget("ui.multiselect", {
 				revert: !(opts[otherSide].sortable || opts[otherSide].droppable),
 				receive: function(event, ui) {
 					// DEBUG
-					that._messages(0, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected);
+					//that._messages(0, "Receive : " + ui.item.data('multiselect.optionLink') + ":" + ui.item.parent()[0].className + " = " + itemSelected);
 	
 					// we received an element from a sortable to another sortable...
 					if (opts[otherSide].sortable) {
@@ -297,7 +297,7 @@ $.widget("ui.multiselect", {
 				},
 				stop: function(event, ui) {
 					// DEBUG
-					that._messages(0, "Stop : " + (ui.item.parent()[0] == otherList[0]));
+					//that._messages(0, "Stop : " + (ui.item.parent()[0] == otherList[0]));
 					that._moveOptionNode(ui.item);
 				}
 			});
@@ -314,7 +314,7 @@ $.widget("ui.multiselect", {
 				greedy: true,
 				drop: function(event, ui) {
 					// DEBUG
-					that._messages(0, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className);
+					//that._messages(0, "drop " + side + " = " + ui.draggable.data('multiselect.optionLink') + ":" + ui.draggable.parent()[0].className);
 
 					//alert( "drop " + itemSelected );
 					// if no optionLink is defined, it was dragged in
@@ -620,7 +620,7 @@ $.widget("ui.multiselect", {
 		}
 
 		// DEBUG
-		this._messages(0, "Busy state changed to : " + this.busy);
+		//this._messages(0, "Busy state changed to : " + this.busy);
 	},
 	_applyItemState: function(item, selected) {
 		if (selected) {
