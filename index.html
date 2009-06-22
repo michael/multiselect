@@ -51,8 +51,9 @@
 		<ul id="nav">
 		   <li><a href="http://quasipartikel.at/2009/05/10/jqueryui-multiselect/">Blogpost</a></li>
 		   <li><a href="http://github.com/yanickrochon/multiselect">Source</a></li>
-		   <li><a href="http://github.com/yanickrochon/multiselect/issues">Bugs</a></li>
+		   <li><a href="http://github.com/michael/multiselect/issues">Bugs</a></li>
 		</ul>
+		<div id="version"></div>
 	</div> 
 	
 	<div id="content">
@@ -67,10 +68,12 @@
 		</p>
 
 		<p>
-			The widget is available under the MIT license.
-			<a id="license" href="#license">View license information</a>
-			<div id="license-info" style="display: none;">
+			The widget is available under the dual <a id="license-MIT" href="#license">MIT</a> and <a id="license-GPL" href="#license">GPL</a> licenses.
+			<div id="license-info-MIT" style="display: none;">
 				<iframe id="frameLicense" name="frameLicense" src="MIT-LICENSE.txt" style="width:100%; height:100%;"></iframe>
+			</div>
+			<div id="license-info-GPL" style="display: none;">
+				<iframe id="frameLicense" name="frameLicense" src="GPL-LICENSE.txt" style="width:100%; height:100%;"></iframe>
 			</div>
 		</p>
 
@@ -304,9 +307,25 @@
 			<li><del>Drag'n'drop may not select items properly. The problem is more apparaent when the containers are sortable.</del</li>
 			<li><del>Talking about sortables, they are not sorted correctly 90% of the time....</del></li>
 			<li>The widget may trigger an error inside JQuery itself <em>...but Seems to be fixed, please report if the problem occurs.</em></li>
-         <li><a href="http://github.com/yanickrochon/multiselect/issues">...more?</a></li>
+         <li><a href="http://github.com/michael/multiselect/issues">...more?</a></li>
+		</ul>
+
+		<h2>Limitations</h2>
+		<ul>
+			<li>When switching a <code>select</code> list into a JQuery UI Multiselect instance, you should not set the <code>selected</code> attribute directly to the original <code>option</code> elements, but instead use the public <code>select</code> method provided with the widget.</li>
+			<li>When selecting all items (or select none) needs to transfer hundreds of elements from one list to the other, there may be script execution timeout errors. Stopping script execution should not have significant impact on stability, but is in itself annoying to the user. Improvement on the item cache system is on the <a href="#todo">todo list</a></li>
 		</ul>
 	 
+		<h2 id="todo">Todos...</h2>
+		<p>Here's a list of features that may or may not be implemented in future releases (no specific versions).
+		<ul>
+			<li>Support for option groups and disabled options (currently ignored)</li>
+			<li>Restore selected options on page reload for options found via remote search calls</li>
+			<li>Add a <code>sort public method to apply the <code>nodeComparator</code> to all items</li>
+			<li>Speed improvements...</li>
+			<li><a href="http://github.com/michael/multiselect/issues">...more?</a></li>
+		</ul>
+
 		<h2>Contributors</h2>
 		<ul>
 			<li><a href="http://github.com/michael/multiselect/">Michael Aufreiter</a></li>
@@ -470,7 +489,7 @@ $('.selector').dialog('option', 'dividerLocation', 0.55);</code></pre>
 					</div>
 					<div class="option-description">
 						<p>Enable or disable basic drag and drop functionality between the selected list (left) and the available list (right). The possible values are 'both', 'left', 'right', 'none'. And set drop support in both lists, the selected list, the available list, or no drag and drop respectively.</p>
-						<p>This setting is readonly at run-time. Trying to set this property after initialization will display an alert message.</p>
+						<p>This setting is readonly at run-time. Trying to set this property after initialization will trigger a <code>messages<code> event.</p>
 					</div>
 					<div class="option-examples">
 						<h4>Code examples</h4>
@@ -541,7 +560,7 @@ $('.selector').dialog('option', 'hide', 'fadeOut');</code></pre>
 					</div>
 					<div class="option-description">
 						<p>Comparator function used in ordering the list's elements during transfer. The function takes two arguments, a and b, and should return a numeric value less than 0 if a &lt; b, 0 if a == b, or greater than 0 if a &gt; b respectively.</p>
-						<p>The function is only called when using '+', '-', 'add all' and 'remove all' action controls, and is never called when using drag and drop item transfer. By default, items are sorted by content value ascending. To completely disable automatic list ordering, set <i>nodeComparator</i> to null.</p>
+						<p>The function is only called when the list is not <a href="#option-sortable">sortable</a>. By default, items are sorted by content value ascending. To completely disable automatic list ordering, set <i>nodeComparator</i> to null.</p>
 					</div>
 					<div class="option-examples">
 						<h4>Code examples</h4>
@@ -552,7 +571,7 @@ $('.selector').dialog('option', 'hide', 'fadeOut');</code></pre>
 							<dd>
 								<pre><code>$('.selector').multiselect({ nodeComparator: function(a, b) {
 	var ka = node1.data('multiselect.optionLink').val(),
-		 kb = node2.data('multiselect.optionLink').val();
+	    kb = node2.data('multiselect.optionLink').val();
 	return ka == kb ? 0 : (ka < kb ? -1 : 1);
 } } });</code></pre>
 							</dd>
@@ -582,6 +601,7 @@ $('.selector').dialog('option', 'nodeComparator', newNodeComparator);</code></pr
 					</div>
 					<div class="option-description">
 						<p>Callback function fired for each newly inserted items. The function takes the inserted item as a JQuery object and does not expect any return value.</p>
+						<p>Internally, items are cached as a best effort basis, therefore some items may be inserted, removed and re-inserted during manipulations.</p>
 					</div>
 					<div class="option-examples">
 						<h4>Code examples</h4>
@@ -800,7 +820,9 @@ $('.selector').dialog('option', 'remoteParams', { publickey: 'bar' });</code></p
 						</dl>
 					</div>
 					<div class="option-description">
-						<p></p>
+						<p>If the multiselect is <code>searchable</code>, then setting this option will allow fetching new data from a remote script. The returned data may vary if a custom <a href="#option-dataParser">dataParser</a> is set.</p>
+						<p>The default parser expects to receive the data as plain text, one option per line, in the format of :
+						<pre><code>value=text</code></pre>
 					</div>
 					<div class="option-examples">
 						<h4>Code examples</h4>
@@ -836,12 +858,12 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 						<h3 class="method-name"><a href="#method-enabled">enabled</a></h3>
 						<dl>
 							<dt class="method-signature-label">Signature:</dt>
-							<dd class="method-signature">.multiselect( 'enabled', <span class="optional">[</span>state<span class="optional">]</span> )</dd>
+							<dd class="method-signature">.multiselect( 'enabled', <span class="optional">[</span>state<span class="optional">]</span>, <span class="optional">[</span>msg<span class="optional">]</span> )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Get or set the state of the enabled multiselect. If no state is specified, will act as a getter.</p>
-				  </div>
+					<div class="method-description">
+						<p>Get or set the state of the enabled multiselect. If no state is specified, will act as a getter. If state is set to <code>false</code>, the <code>msg</code> argument will display the specified string as custom disabled message inside the multiseelct.</p>
+					</div>
 				</li>
 
 				<li class="method" id="method-deselect">
@@ -852,9 +874,11 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'deselect', item )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Deselect the specified item. The value should be key of the option to deselect. If value is numeric and is &gt;= 0 and is &lt; selected item count, the item at position value will be deselected.</p>
-				  </div>
+					<div class="method-description">
+						<p>Deselect the specified item. The value should be the text of the option to verify (not case sensitive).</p>
+						<p>If only the option key is known, the option may be specified using the following command:</p>
+						<pre><code>$('.mulstiselect').multiselect('deselect', $('.multiselect').find('option[value=key]').text() );</code></pre>
+					</div>
 				</li>
 
 				<li class="method" id="method-destroy">
@@ -865,9 +889,9 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'destroy' )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Remove the multiselect functionality completely. This will return the element back to it's default look.</p>
-				  </div>
+					<div class="method-description">
+						<p>Remove the multiselect functionality completely. This will return the element back to it's default look.</p>
+					</div>
 				</li>
       
 				<li class="method" id="method-isBusy">
@@ -878,9 +902,9 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'isBusy' )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Return the busy state of the multiselect. The method will return true if the multiselect is processing item selection, search, etc.</p>
-				  </div>
+					<div class="method-description">
+						<p>Return the busy state of the multiselect. The method will return true if the multiselect is processing item selection, search, etc.</p>
+					</div>
 				</li>
 
 				<li class="method" id="method-isSelected">
@@ -891,9 +915,11 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'isSelected', item )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Return true if and only if item is selected. The value should be key of the option to verify. If value is numeric and is &gt;= 0 and is &lt; selected item count, the method will return true.</p>
-				  </div>
+					<div class="method-description">
+						<p>Return true if and only if item is selected. The value should be the text of the option to verify (not case sensitive).</p>
+						<p>If only the option key is known, the option may be specified using the following command:</p>
+						<pre><code>$('.mulstiselect').multiselect('isSelected', $('.multiselect').find('option[value=key]').text() );</code></pre>
+					</div>
 				</li>
 
 				<li class="method" id="method-option">
@@ -904,9 +930,9 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'option', optionName, <span class="optional">[</span>value<span class="optional">]</span> )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Get or set any dialog option. If no value is specified, will act as a getter.</p>
-				  </div>
+					<div class="method-description">
+						<p>Get or set any dialog option. If no value is specified, will act as a getter.</p>
+					</div>
 				</li>
 
 				<li class="method" id="method-search">
@@ -917,9 +943,9 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'search', query )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Perform a search of all the available elements, and filter out (hide) any unmatched item. This method controls the search input fields, if the multiselect is not searchable, is busy, or not enabled, the method does nothing.</p>
-				  </div>
+					<div class="method-description">
+						<p>Perform a search of all the available elements, and filter out (hide) any unmatched item. This method controls the search input fields, if the multiselect is not searchable, or is busy, or not enabled, the method does nothing.</p>
+					</div>
 				</li>
 
 				<li class="method" id="method-select">
@@ -930,9 +956,11 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'select', item )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Select the specified item. The value should be key of the option to select. If value is numeric and is &gt;= 0 and is &lt; available item count, the item at position value will be selected.</p>
-				  </div>
+					<div class="method-description">
+						<p>Select the specified item. The value should the text of the option to select (not case sensitive).</p>
+						<p>If only the option key is known, the option may be specified using the following command:</p>
+						<pre><code>$('.mulstiselect').multiselect('select', $('.multiselect').find('option[value=key]').text() );</code></pre>
+					</div>
 				</li>
 
 				<li class="method" id="method-selectAll">
@@ -943,9 +971,9 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'selectAll' )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Select all of the available items.</p>
-				  </div>
+					<div class="method-description">
+						<p>Select all of the available items.</p>
+					</div>
 				</li>
 
 				<li class="method" id="method-selectedValues">
@@ -956,9 +984,11 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'selectedValues' )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Return an array of the keys of all the currently selected values (equivalent to "Add all").</p>
-				  </div>
+					<div class="method-description">
+						<p>Return an array of the keys of all the currently selected values.</p>
+						<p>This method is an utility method equivalent to :</p>
+						<pre><code>$.map( $('.multiselect').find('option[selected]'), function(item,i) { return $(item).val(); });</code></pre>
+					</div>
 				</li>
 
 				<li class="method" id="method-selectNone">
@@ -969,9 +999,9 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 							<dd class="method-signature">.multiselect( 'selectNone' )</dd>
 						</dl> 
 					</div>
-				  <div class="method-description">
-					 <p>Deselect all the selected items (equivalent to "Remove all").</p>
-				  </div>
+					<div class="method-description">
+						<p>Deselect all the selected items (equivalent to "Remove all").</p>
+					</div>
 				</li>
 
 			</ul>
@@ -1003,7 +1033,7 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 					<div class="event-description">
 						<p>This event is triggered whenever the an option has been deselected. The event <code>deselected</code> is triggered for every option deselected.</p>
 					</div>
-					<div class="option-examples">
+					<div class="event-examples">
 						<h4>Code examples</h4>
 						<dl class="option-examples-list">
 							<dt>
@@ -1038,7 +1068,7 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 					<div class="event-description">
 						<p>This event is triggered whenever the widget needs to send some feedback to the user.</p>
 					</div>
-					<div class="option-examples">
+					<div class="event-examples">
 						<h4>Code examples</h4>
 						<dl class="option-examples-list">
 							<dt>
@@ -1079,7 +1109,7 @@ $('.selector').dialog('option', 'remoteUrl', '/path/to/script.php');</code></pre
 					<div class="event-description">
 						<p>This event is triggered whenever the an option has been selected. The event <code>selected</code> is triggered for every option selected.</p>
 					</div>
-					<div class="option-examples">
+					<div class="event-examples">
 						<h4>Code examples</h4>
 						<dl class="option-examples-list">
 							<dt>
