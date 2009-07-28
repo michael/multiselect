@@ -1,0 +1,12 @@
+h2. jQuery UI Multiselect
+
+You're currently looking at the rather outdated (while still most stable) version of the Multiselect Widget.
+
+Please also have a look at the upcoming version "http://github.com/michael/multiselect/tree/next":http://github.com/michael/multiselect/tree/next, that is supposed to become v1.0 one day ;-).
+
+Yanick's demo shows the latest version in action:
+
+"http://yanickrochon.uuuq.com/multiselect/":http://yanickrochon.uuuq.com/multiselect/
+
+If you have suggestions or did some nice modifications just let us know.
+We'd be happy to review them, and perhaps include them.
