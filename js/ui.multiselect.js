@@ -28,7 +28,20 @@
 (function($) {
 
 $.widget("ui.multiselect", {
-	_init: function() {
+  options: {
+		sortable: true,
+		searchable: true,
+		animated: 'fast',
+		show: 'slideDown',
+		hide: 'slideUp',
+		dividerLocation: 0.6,
+		nodeComparator: function(node1,node2) {
+			var text1 = node1.text(),
+			    text2 = node2.text();
+			return text1 == text2 ? 0 : (text1 < text2 ? -1 : 1);
+		}
+	},
+	_create: function() {
 		this.element.hide();
 		this.id = this.element.attr("id");
 		this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
@@ -291,24 +304,12 @@ $.widget("ui.multiselect", {
 });
 		
 $.extend($.ui.multiselect, {
-	defaults: {
-		sortable: true,
-		searchable: true,
-		animated: 'fast',
-		show: 'slideDown',
-		hide: 'slideUp',
-		dividerLocation: 0.6,
-		nodeComparator: function(node1,node2) {
-			var text1 = node1.text(),
-			    text2 = node2.text();
-			return text1 == text2 ? 0 : (text1 < text2 ? -1 : 1);
-		}
-	},
 	locale: {
 		addAll:'Add all',
 		removeAll:'Remove all',
 		itemsCount:'items selected'
 	}
 });
+
 
 })(jQuery);
