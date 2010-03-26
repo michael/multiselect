@@ -74,7 +74,7 @@ $.widget("ui.multiselect", {
 		
 		// make selection sortable
 		if (this.options.sortable) {
-			$("ul.selected").sortable({
+			this.selectedList.sortable({
 				placeholder: 'ui-state-highlight',
 				axis: 'y',
 				update: function(event, ui) {
@@ -112,11 +112,12 @@ $.widget("ui.multiselect", {
 		}
 		
 		// batch actions
-		$(".remove-all").click(function() {
+		this.container.find(".remove-all").click(function() {
 			that._populateLists(that.element.find('option').removeAttr('selected'));
 			return false;
 		});
-		$(".add-all").click(function() {
+		
+		this.container.find(".add-all").click(function() {
 			that._populateLists(that.element.find('option').attr('selected', 'selected'));
 			return false;
 		});
@@ -259,21 +260,24 @@ $.widget("ui.multiselect", {
 			that.count += 1;
 			that._updateCount();
 			return false;
-		})
-		// make draggable
-		.each(function() {
-			$(this).parent().draggable({
-	      connectToSortable: 'ul.selected',
-				helper: function() {
-					var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
-					selectedItem.width($(this).width());
-					return selectedItem;
-				},
-				appendTo: '.ui-multiselect',
-				containment: '.ui-multiselect',
-				revert: 'invalid'
-	    });
 		});
+		
+		// make draggable
+		if (this.options.sortable) {
+  		elements.each(function() {
+  			$(this).parent().draggable({
+  	      connectToSortable: that.selectedList,
+  				helper: function() {
+  					var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
+  					selectedItem.width($(this).width());
+  					return selectedItem;
+  				},
+  				appendTo: that.container,
+  				containment: that.container,
+  				revert: 'invalid'
+  	    });
+  		});		  
+		}
 	},
 	_registerRemoveEvents: function(elements) {
 		var that = this;
