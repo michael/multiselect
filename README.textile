@@ -1,7 +1,6 @@
 h2. jQuery UI Multiselect
 
-Please also consider the more advanced 'next' version "http://github.com/michael/multiselect/tree/next":http://github.com/michael/multiselect/tree/next (currently not compatible with jQuery UI 1.8).
-
+Please also consider the more advanced 'next' version "http://github.com/michael/multiselect/tree/next":http://github.com/michael/multiselect/tree/next (-currently not- now also compatible with jQuery UI 1.8).
 
 If you have suggestions or did some nice modifications just let us know.
 We'd be happy to review them, and perhaps include them.
