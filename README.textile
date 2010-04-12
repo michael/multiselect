@@ -1,8 +1,12 @@
-h2. jQuery UI Multiselect Next
+h2. jQuery UI Multiselect Next (now runs on jQuery UI 1.8)
 
-This is supposed become the final version (1.0) of jQuery UI Multiselect one day ;-).
+This is a more advanced but not well tested extended version of the jQuery UI Multiselect widget.
+It just got updated to work along with jQuery 1.4.2 and jQuery UI 1.8.
 
-Please visit Yanick's demo page to see the most recent version in action!
+I've installed a demo page at "http://quasipartikel.at/multiselect_ext/":http://quasipartikel.at/multiselect_ext/
+
+- 
+For the original version done by Yanick (which is based on jQuery 1.3 and jQuery UI 1.7) please visit his demo page:
 
 "http://yanickrochon.uuuq.com/multiselect/":http://yanickrochon.uuuq.com/multiselect/
 

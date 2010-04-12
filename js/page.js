@@ -3,6 +3,7 @@
  *
  * @author Yanick Rochon
  */
+
 $(function() {
 
 	var DEBUG = false; // true for displaying debug information
