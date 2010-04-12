@@ -230,8 +230,8 @@ $.widget("ui.multiselect", {
 			this._setBusy(true);
 
 			// format data
-			if (data = this.options.dataParser(data)) {
-				var option, elements = [];
+			var elements = [];
+			if (data = this.options.dataParser.call(this, data)) {
 				for (var key in data) {
 					// check if the option does not exist already
 					if (this.element.find('option[value="'+key+'"]').size()==0) {
@@ -273,7 +273,7 @@ $.widget("ui.multiselect", {
 			case 'sortable':
 				// readonly options
 				this._messages(
-					$.ui.multiselect.constante.MESSAGE_WARNING,
+					$.ui.multiselect.constants.MESSAGE_WARNING,
 					$.ui.multiselect.locale.errorReadonly, 
 					{option: key}
 				);
@@ -446,7 +446,7 @@ $.widget("ui.multiselect", {
 					setTimeout(function() { _addNode(); }, 1);
 				} else {
 					that._messages(
-						$.ui.multiselect.constante.MESSAGE_EXCEPTION,
+						$.ui.multiselect.constants.MESSAGE_EXCEPTION,
 						$.ui.multiselect.locale.errorInsertNode, 
 						{key:node.data('multiselect.optionLink').val(), value:node.text()}
 					);
@@ -804,7 +804,7 @@ $.widget("ui.multiselect", {
 							}
 						});
 					} catch (e) {
-						that._messages($.ui.multiselect.constante.MESSAGE_EXCEPTION, e.message);   // error message template ??
+						that._messages($.ui.multiselect.constants.MESSAGE_EXCEPTION, e.message);   // error message template ??
 						that._setBusy(false); 
 					}
 				} else {
@@ -871,8 +871,6 @@ var _dragHelper = function(event, ui) {
 	;
 	return clone;
 };
-
-
 
 
 
