@@ -126,7 +126,7 @@ $.widget("ui.multiselect", {
 		this.element.show();
 		this.container.remove();
 
-		$.widget.prototype.destroy.apply(this, arguments);
+		$.Widget.prototype.destroy.apply(this, arguments);
 	},
 	_populateLists: function(options) {
 		this.selectedList.children('.ui-element').remove();
