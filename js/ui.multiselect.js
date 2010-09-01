@@ -157,6 +157,14 @@ $.widget("ui.multiselect", {
     *  Public
     **************************************/
 
+    slideToggle: function() {
+        this.container.slideToggle();
+        
+        // since we don't know this yet
+        this.availableActions.find('input').width(Math.max(this.availableActions.width() - this.availableActions.find('a.add-all').width() - 30, 20));
+        
+    },
+
 	destroy: function() {
 		this.container.remove();
 		this.element.show();
