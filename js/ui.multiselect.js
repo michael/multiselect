@@ -31,6 +31,7 @@ $.widget("ui.multiselect", {
   options: {
 		sortable: true,
 		searchable: true,
+		doubleClickable: true,
 		animated: 'fast',
 		show: 'slideDown',
 		hide: 'slideUp',
@@ -217,6 +218,7 @@ $.widget("ui.multiselect", {
 			this._registerAddEvents(item.find('a.action'));
 		}
 		
+		this._registerDoubleClickEvents(item);
 		this._registerHoverEvents(item);
 	},
 	// taken from John Resig's liveUpdate script
@@ -243,6 +245,12 @@ $.widget("ui.multiselect", {
 				$(rows[this]).show();
 			});
 		}
+	},
+	_registerDoubleClickEvents: function(elements) {
+		if (!this.options.doubleClickable) return;
+		elements.dblclick(function() {
+			elements.find('a.action').click();
+		});
 	},
 	_registerHoverEvents: function(elements) {
 		elements.removeClass('ui-state-hover');
