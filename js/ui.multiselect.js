@@ -158,7 +158,7 @@ $.widget("ui.multiselect", {
 	// clones an item with associated data
 	// didn't find a smarter away around this
 	_cloneWithData: function(clonee) {
-		var clone = clonee.clone();
+		var clone = clonee.clone(false,false);
 		clone.data('optionLink', clonee.data('optionLink'));
 		clone.data('idx', clonee.data('idx'));
 		return clone;
