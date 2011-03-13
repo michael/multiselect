@@ -119,7 +119,15 @@ $.widget("ui.multiselect", {
 		});
 		
 		this.container.find(".add-all").click(function() {
-			that._populateLists(that.element.find('option').attr('selected', 'selected'));
+			var options = that.element.find('option');
+			if (that.availableList.children('li:hidden').length > 1) {
+				that.availableList.children('li').each(function(i) {
+					if ($(this).is(":visible")) $(options[i-1]).attr('selected', 'selected'); 
+				});
+			} else {
+				options.attr('selected', 'selected');
+			}
+			that._populateLists(options);
 			return false;
 		});
 	},
@@ -146,6 +154,7 @@ $.widget("ui.multiselect", {
 		
 		// update count
 		this._updateCount();
+		that._filter.apply(this.availableContainer.find('input.search'), [that.availableList]);
   },
 	_updateCount: function() {
 		this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsCount);
