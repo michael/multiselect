@@ -119,7 +119,7 @@ $.widget("ui.multiselect", {
 		});
 		
 		this.container.find(".add-all").click(function() {
-			var options = that.element.find('option');
+			var options = that.element.find('option').not(":selected");
 			if (that.availableList.children('li:hidden').length > 1) {
 				that.availableList.children('li').each(function(i) {
 					if ($(this).is(":visible")) $(options[i-1]).attr('selected', 'selected'); 
@@ -127,7 +127,7 @@ $.widget("ui.multiselect", {
 			} else {
 				options.attr('selected', 'selected');
 			}
-			that._populateLists(options);
+			that._populateLists(that.element.find('option'));
 			return false;
 		});
 	},
