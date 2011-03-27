@@ -1,6 +1,5 @@
 h2. jQuery UI Multiselect
 
-Please also consider the more advanced 'next' version "http://github.com/michael/multiselect/tree/next":http://github.com/michael/multiselect/tree/next (-currently not- now also compatible with jQuery UI 1.8).
+This repository is no longer actively maintained by the author. However, pull requests are always welcome. If there's someone interested in officially maintaining the plugin, please let me know.
 
-If you have suggestions or did some nice modifications just let us know.
-We'd be happy to review them, and perhaps include them.
+In case you are looking for an AJAX version, please also consider "Yanick Rochon's":http://github.com/michael/multiselect/tree/next version.
