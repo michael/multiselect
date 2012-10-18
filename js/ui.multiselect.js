@@ -258,8 +258,12 @@ $.widget("ui.multiselect", {
 	},
 	_registerDoubleClickEvents: function(elements) {
 		if (!this.options.doubleClickable) return;
-		elements.dblclick(function() {
-			elements.find('a.action').click();
+		elements.dblclick(function(ev) {
+			if ($(ev.target).closest('.action').length === 0) {
+				// This may be triggered with rapid clicks on actions as well. In that
+				// case don't trigger an additional click.
+				elements.find('a.action').click();
+			}
 		});
 	},
 	_registerHoverEvents: function(elements) {
