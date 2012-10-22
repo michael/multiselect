@@ -1,7 +1,7 @@
 /**
  * Localization strings for the UI Multiselect widget
  *
- * @locale en, en-US
+ * @locale ru, ru-RU
  */
 
 $.extend($.ui.multiselect.locale, {
