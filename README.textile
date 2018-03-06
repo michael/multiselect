@@ -1,6 +1,6 @@
 h2. Maintainer's note
 
-This branch is no longer active, however check out the version 2.0 rewrite maintained by "Yanick Rochon":https://github.com/yanickrochon/jquery.multiselect-2.
+This branch is no longer active, however check out the version 2.0 rewrite maintained by "Yanick Rochon":https://github.com/yanickrochon/jquery.uix.multiselect.
 
 -
 
